@@ -1,26 +1,61 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boda de V & C</title>
+    
+    <title>Boda de José Carlos y Vanessa</title>
+
+    <!-- ========================================== -->
+    <!-- ETIQUETAS PARA LA VISTA PREVIA DE WHATSAPP -->
+    <!-- ========================================== -->
+    <meta property="og:title" content="Boda de José Carlos y Vanessa">
+    <meta property="og:description" content="¡Acompáñanos a celebrar nuestra boda! Toca aquí para ver tu invitación personalizada.">
+    <!-- RECUERDA CAMBIAR ESTE ENLACE POR TU FOTO REAL -->
+    <meta property="og:image" content="mnt/data/cv.png"> 
+    <meta property="og:type" content="website">
+
     <style>
-        body { font-family: 'Georgia', serif; text-align: center; background-color: #fcfcfc; color: #333; padding: 50px; }
-        h1 { color: #d4af37; }
-        .menu { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto; }
-        .menu a { padding: 15px; background-color: #fff; border: 1px solid #d4af37; text-decoration: none; color: #333; border-radius: 5px; transition: 0.3s; }
-        .menu a:hover { background-color: #d4af37; color: #fff; }
+        /* Un diseño muy sencillo por si el internet del invitado es lento y alcanza a ver esta pantalla */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fcfcfc;
+            font-family: Arial, sans-serif;
+            color: #333;
+            text-align: center;
+        }
+        .mensaje {
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>¡Bienvenidos a la Boda de <p>V & C! </p></h1>
-    <p>Por favor, selecciona una opción para ver más detalles:</p>
-
-    <div class="menu">
-		<a href="weddingV&C/wedding.html">💌 Ver Invitación FINAL</a>
-		<a href="weddingV&C/generadorLinks.html">💌 Generador de enlaces Whatsapp </a>
+    <div class="mensaje">
+        <h2>Abriendo tu invitación...</h2>
+        <p>Por favor espera un momento.</p>
     </div>
+
+    <!-- ========================================== -->
+    <!-- SCRIPT DE REDIRECCIÓN PERSONALIZADA        -->
+    <!-- ========================================== -->
+    <script type="text/javascript">
+        // 1. Aquí defines a dónde van a ir finalmente
+        const enlaceDestinoBase = "https://bodajosecarlosyvanessa.tupasedigital.online/weddingV&C/wedding.html";
+        
+        // 2. Esto captura lo que venga después del "?" en el enlace que mandes por WhatsApp
+        const parametrosPersonalizados = window.location.search; 
+
+        // 3. Redirección después de 1.5 segundos
+        setTimeout(function() {
+            // Une el enlace base con el código del invitado
+            window.location.href = enlaceDestinoBase + parametrosPersonalizados;
+        }, 1500);
+    </script>
 
 </body>
 </html>
