@@ -3,23 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boda de V & C</title>
+    <title>¡Estás Invitado! Boda de Jose Carlos & Vanessa</title>
+
+    <meta property="og:title" content="¡Invitación al Cumpleaños de [Nombre]!">
+    <meta property="og:description" content="Acompáñanos a celebrar este [Día] a las [Hora]. ¡No faltes!">
+    <meta property="og:image" content="https://www.tusitio.com/ruta-a-tu-imagen.jpg">
+    <meta property="og:url" content="https://www.tusitio.com/tu-invitacion.html">
+    <meta property="og:type" content="website">
+
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
     <style>
-        body { font-family: 'Georgia', serif; text-align: center; background-color: #fcfcfc; color: #333; padding: 50px; }
-        h1 { color: #d4af37; }
-        .menu { display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto; }
-        .menu a { padding: 15px; background-color: #fff; border: 1px solid #d4af37; text-decoration: none; color: #333; border-radius: 5px; transition: 0.3s; }
-        .menu a:hover { background-color: #d4af37; color: #fff; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .tarjeta-invitacion {
+            background: white;
+            max-width: 450px; /* Ancho máximo ideal para celulares */
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            overflow: hidden;
+            padding-bottom: 25px;
+        }
+        
+        /* AQUÍ SE FORCEJEA EL TAMAÑO DE LA IMAGEN SIN DEFORMARLA */
+        .imagen-forzada {
+            width: 100%;         /* Ocupa todo el ancho disponible */
+            height: 350px;       /* Forzamos una altura fija sin importar la original */
+            
+            /* propiedad mágica: recorta y adapta la foto automáticamente al contenedor 
+               como si fuera un marco, sin estirarla ni aplastarla */
+            object-fit: cover;   
+            
+            object-position: center; /* Centra el enfoque de la foto */
+        }
+
+        .contenido {
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>¡Bienvenidos a la Boda de <p>V & C! </p></h1>
-    <p>Por favor, selecciona una opción para ver más detalles:</p>
-
-    <div class="menu">
-		<a href="weddingV&C/bodaWC.html">💌 Ver Invitación FINAL</a>
-		<a href="weddingV&C/generadorLinks.html">💌 Generador de enlaces Whatsapp </a>
+    <div class="tarjeta-invitacion">
+        <img src="https://www.tusitio.com/ruta-a-tu-imagen.jpg" alt="Invitación" class="imagen-forzada">
+        
+        <div class="contenido">
+            <h1>¡Te invito a mi fiesta!</h1>
+            <p>Acompáñame a celebrar un año más de vida.</p>
+            <p><strong>Fecha:</strong> [Día de la fiesta]<br><strong>Hora:</strong> [Hora]</p>
+        </div>
     </div>
 
 </body>
