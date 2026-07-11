@@ -2,59 +2,27 @@
 <html lang="es-MX">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Boda de José Carlos y Vanessa</title>
+    <!-- Título de la pestaña en el navegador -->
+    <title>💍 Boda de José Carlos y Vanessa ✨</title>
 
-    <!-- ========================================== -->
-    <!-- ETIQUETAS PARA LA VISTA PREVIA DE WHATSAPP -->
-    <!-- ========================================== -->
-    <meta property="og:title" content="Boda de José Carlos y Vanessa">
-    <meta property="og:description" content="¡Acompáñanos a celebrar nuestra boda! Toca aquí para ver tu invitación personalizada.">
-    <!-- RECUERDA CAMBIAR ESTE ENLACE POR TU FOTO REAL -->
+    <!-- Etiquetas Open Graph obligatorias para WhatsApp (¡Ahora con emojis!) -->
+    <meta property="og:title" content="💍 Boda de José Carlos y Vanessa ✨">
+    <meta property="og:description" content="¡Acompáñanos a celebrar nuestra boda! 💒🥂 Toca aquí para abrir tu invitación. 🕊️">
     <meta property="og:image" content="./mnt/data/cv.png"> 
+    <meta property="og:url" content="https://bodajosecarlosyvanessa.tupasedigital.online/">
     <meta property="og:type" content="website">
 
-    <style>
-        /* Un diseño muy sencillo por si el internet del invitado es lento y alcanza a ver esta pantalla */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #fcfcfc;
-            font-family: Arial, sans-serif;
-            color: #333;
-            text-align: center;
-        }
-        .mensaje {
-            padding: 20px;
-        }
-    </style>
 </head>
 <body>
 
-    <div class="mensaje">
-        <h2>Abriendo tu invitación...</h2>
-        <p>Por favor espera un momento.</p>
-    </div>
+    <p>Redirigiendo a la invitación...</p>
 
-    <!-- ========================================== -->
-    <!-- SCRIPT DE REDIRECCIÓN PERSONALIZADA        -->
-    <!-- ========================================== -->
     <script type="text/javascript">
-        // 1. Aquí defines a dónde van a ir finalmente
-        const enlaceDestinoBase = "https://bodajosecarlosyvanessa.tupasedigital.online/weddingV&C/wedding.html";
-        
-        // 2. Esto captura lo que venga después del "?" en el enlace que mandes por WhatsApp
-        const parametrosPersonalizados = window.location.search; 
-
-        // 3. Redirección después de 1.5 segundos
+        // Redirección sencilla después de 1.5 segundos
         setTimeout(function() {
-            // Une el enlace base con el código del invitado
-            window.location.href = enlaceDestinoBase + parametrosPersonalizados;
-        }, 1500);
+            window.location.href = "https://bodajosecarlosyvanessa.tupasedigital.online/weddingV&C/wedding.html";
+        }, 1100);
     </script>
 
 </body>
