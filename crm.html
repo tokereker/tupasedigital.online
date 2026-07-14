@@ -3,418 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tu Pase Digital | WeddingFlow CRM Cloud - Gestión de Invitados</title>
-    <!-- Tailwind CSS para diseño robusto y responsivo -->
+    <title>CRM Gestión de Invitados - TPD</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome para Iconos -->
+    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- SortableJS para Drag and Drop -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <!-- SheetJS para leer/exportar Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    <!-- Chart.js para Gráficas de Estadísticas -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2pdf para exportar a PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- SheetJS (Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- SweetAlert2 (Alertas bonitas) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f3f4f6; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         
-        /* Toast Notifications */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { padding: 12px 20px; border-radius: 8px; color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease-out forwards; }
-        .toast.success { background-color: #10b981; }
-        .toast.error { background-color: #ef4444; }
-        .toast.warning { background-color: #f59e0b; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        #ai-chat-widget { position: fixed; bottom: 90px; right: 20px; z-index: 9998; width: 350px; max-height: 500px; display: none; flex-direction: column; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid #e5e7eb; }
+        #ai-chat-header { background: linear-gradient(to right, #8b5cf6, #ec4899); color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        #ai-chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f9fafb; min-height: 250px; max-height: 350px;}
+        .ai-msg { padding: 8px 12px; border-radius: 8px; font-size: 13px; max-width: 85%; }
+        .ai-msg.user { background: #8b5cf6; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+        .ai-msg.bot { background: white; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid #e5e7eb; }
+        #ai-chat-input-container { display: flex; border-top: 1px solid #e5e7eb; padding: 8px; background: white; }
+        #ai-chat-input { flex: 1; border: 1px solid #d1d5db; border-radius: 20px; padding: 6px 12px; font-size: 13px; outline: none; }
+        #ai-chat-send { background: #8b5cf6; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; margin-left: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         
-        /* Drag and drop styles */
-        .sortable-ghost { opacity: 0.4; background-color: #f3e8ff; border: 1px dashed #a855f7; }
-        .sortable-drag { cursor: grabbing !important; }
-        .guest-draggable { cursor: grab; user-select: none; }
-        .guest-draggable:active { cursor: grabbing; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        #ai-fab { position: fixed; bottom: 20px; right: 20px; z-index: 9997; width: 60px; height: 60px; background: linear-gradient(to right, #8b5cf6, #ec4899); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        #ai-fab:hover { transform: scale(1.1); }
 
-        /* Vistas de Autenticación */
-        #loading-view { display: flex; }
-        #login-view { display: none; }
-        #app-view { display: none; }
-        
-        /* Ocultar elementos al imprimir a PDF para que salga limpio */
-        .no-pdf { display: block; }
-        .pdf-export-mode .no-pdf { display: none !important; }
-        .pdf-export-mode { background: #ffffff !important; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .table-container { max-height: calc(100vh - 250px); overflow-y: auto; }
     </style>
 </head>
-<body class="text-gray-800 h-screen flex flex-col">
+<body class="text-gray-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- Notificaciones -->
-    <div id="toast-container"></div>
-
-    <!-- PANTALLA DE CARGA (CONEXIÓN CLOUD) -->
-    <div id="loading-view" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50 p-4">
-        <div id="loading-box" class="bg-white p-8 rounded-xl shadow-2xl flex flex-col items-center border-t-8 border-blue-500 w-full max-w-md">
-            <i class="fa-solid fa-cloud-arrow-up text-5xl text-blue-500 mb-4 animate-bounce"></i>
-            <h2 class="text-xl font-bold text-gray-800">Conectando a la Nube...</h2>
-            <p class="text-sm text-gray-500 mt-2 text-center">Sincronizando con Firebase Firestore</p>
-        </div>
-    </div>
-
-    <!-- PANTALLA DE LOGIN -->
-    <div id="login-view" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-40">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-purple-600">
-            <div class="text-center mb-6">
-                <i class="fa-solid fa-ring text-4xl text-purple-600 mb-2"></i>
-                <h1 class="text-2xl font-bold text-gray-800">Tu Pase Digital | WeddingFlow CRM</h1>
-                <p class="text-sm text-gray-500">Gestión Profesional en la Nube</p>
-            </div>
+    <div id="login-screen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 glass">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <i class="fa-solid fa-rings-wedding text-5xl text-pink-500 mb-4"></i>
+            <h1 class="text-2xl font-bold mb-2">Gestión de Invitados TPD</h1>
+            <p class="text-sm text-gray-500 mb-6">Inicia sesión para gestionar tu evento</p>
             
-            <form id="login-form" onsubmit="iniciarSesion(event)">
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Usuario</label>
-                    <input type="text" id="login-user" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-purple-500 outline-none" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Contraseña</label>
-                    <input type="password" id="login-pass" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-purple-500 outline-none" required>
-                </div>
-                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded shadow transition">
-                    Ingresar <i class="fa-solid fa-arrow-right-to-bracket ml-2"></i>
-                </button>
-            </form>
+            <input type="text" id="login-user" placeholder="Usuario (Ej. ana_y_luis)" class="w-full border p-3 rounded-lg mb-4 outline-none focus:ring-2 focus:ring-pink-500">
+            <input type="password" id="login-pass" placeholder="Contraseña" class="w-full border p-3 rounded-lg mb-6 outline-none focus:ring-2 focus:ring-pink-500">
+            
+            <button onclick="window.login()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">Entrar al CRM</button>
         </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL (Oculta hasta login) -->
-    <div id="app-view" class="flex-1 flex flex-col h-full w-full">
+    <div id="app-screen" class="hidden h-full flex flex-col">
         <!-- Header -->
-        <header class="bg-gradient-to-r from-gray-900 to-purple-900 text-white p-5 shadow-lg flex justify-between items-center flex-wrap gap-4 no-pdf">
-            <div>
-                <h1 class="text-2xl font-bold"><i class="fa-solid fa-ring text-pink-300 mr-2"></i>TPD WeddingFlow Cloud</h1>
-                <p class="text-sm text-gray-300">Gestor en Tiempo Real</p>
+        <header class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-rings-wedding text-2xl text-pink-500"></i>
+                <h1 class="text-xl font-bold text-gray-800">Gestión de Invitados TPD</h1>
             </div>
-            <div class="flex gap-3 items-center">
-                <div class="text-right mr-4 border-r border-gray-600 pr-4 hidden md:block">
-                    <p class="text-xs font-bold text-green-400"><i class="fa-solid fa-cloud mr-1"></i> Nube Sincronizada</p>
-                    <p class="text-sm font-bold text-white mt-0.5" id="header-user-role">Cargando...</p>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-sm font-bold" id="user-display">Usuario</p>
+                    <p class="text-xs text-green-500"><i class="fa-solid fa-cloud"></i> Nube Sincronizada</p>
                 </div>
-                <button onclick="exportBackup()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded shadow text-sm font-semibold transition hidden"><i class="fa-solid fa-download mr-1"></i> Respaldo (JSON)</button>
-                <button type="button" onclick="window.cerrarSesion()" class="bg-red-600 hover:bg-red-500 px-3 py-2 rounded shadow text-sm font-semibold transition" title="Cerrar Sesión"><i class="fa-solid fa-power-off"></i></button>
+                <button onclick="window.logout()" class="text-gray-500 hover:text-red-500 transition" title="Cerrar Sesión"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col">
+        <!-- Navegación -->
+        <nav class="bg-white border-b flex px-6 gap-6 shrink-0 text-sm font-medium overflow-x-auto">
+            <button onclick="window.switchTab('invitados')" id="tab-invitados" class="tab-btn py-4 border-b-2 border-pink-500 text-pink-600"><i class="fa-solid fa-users mr-2"></i>Lista de Invitados</button>
+            <button onclick="window.switchTab('mesas')" id="tab-mesas" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chair mr-2"></i>Acomodo de Mesas</button>
+            <button onclick="window.switchTab('estadisticas')" id="tab-estadisticas" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chart-pie mr-2"></i>Estadísticas & Candy Bar</button>
+        </nav>
+
+        <!-- Contenido Principal -->
+        <main class="flex-1 overflow-hidden p-6 bg-gray-50">
             
-            <!-- Tabs Nav (Dinámico por Rol) -->
-            <nav class="flex space-x-2 border-b border-gray-300 mb-6 overflow-x-auto pb-2 no-pdf" id="main-nav">
-                <button onclick="window.openTab('tab-rsvp', this)" id="nav-rsvp" class="tab-btn bg-purple-700 text-white px-5 py-2 rounded-t-lg font-bold shadow-sm whitespace-nowrap transition"><i class="fa-solid fa-users mr-2"></i>1. Invitados</button>
-                <button onclick="window.openTab('tab-mesas', this)" id="nav-mesas" class="tab-btn bg-gray-200 text-gray-600 hover:bg-gray-300 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition"><i class="fa-solid fa-chair mr-2"></i>2. Mesas</button>
-                <button onclick="window.openTab('tab-stats', this)" id="nav-stats" class="tab-btn bg-gray-200 text-gray-600 hover:bg-gray-300 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition"><i class="fa-solid fa-chart-pie mr-2"></i>3. Estadísticas</button>
-                <button onclick="window.openTab('tab-admin', this)" id="nav-admin" class="tab-btn bg-yellow-600 text-white hover:bg-yellow-500 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition hidden"><i class="fa-solid fa-lock mr-2"></i>4. Administrador</button>
-            </nav>
+            <section id="view-invitados" class="h-full flex flex-col">
+                <!-- Controles Superiores -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 shrink-0 flex flex-wrap items-center gap-4 justify-between">
+                    <!-- Agregar Manualmente -->
+                    <div class="flex-1 min-w-[300px] flex gap-2">
+                        <input type="text" id="new-guest-name" placeholder="Escribe aquí para agregar manualmente..." class="flex-1 border p-2 text-sm rounded outline-none focus:ring-2 focus:ring-pink-500">
+                        <input type="number" id="new-guest-passes" placeholder="Pases" min="1" value="1" class="w-20 border p-2 text-sm rounded outline-none" title="Pases Totales">
+                        <input type="number" id="new-guest-kids" placeholder="Niños" min="0" value="0" class="w-20 border p-2 text-sm rounded outline-none" title="Niños (Incluidos en los pases)">
+                        <button onclick="window.addGuestManual()" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded text-sm font-bold shadow transition"><i class="fa-solid fa-plus"></i></button>
+                    </div>
 
-            <!-- TAB 1: INVITADOS -->
-            <section id="tab-rsvp" class="tab-content active bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <div class="flex justify-between items-center mb-4 border-b pb-2 flex-wrap gap-4">
-                    <div class="flex items-center gap-4">
-                        <h2 class="text-xl font-bold text-purple-800">
-                            Control de Invitados
-                            <span id="guest-counter" class="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full ml-2">0 Total</span>
-                        </h2>
-                        <div class="flex items-center gap-2 bg-purple-50 p-1.5 rounded border border-purple-100 no-pdf" title="Los datos se borrarán automáticamente 1 semana después de esta fecha">
-                            <label class="text-xs font-bold text-purple-700"><i class="fa-regular fa-calendar text-purple-500 mr-1"></i>Fecha del Evento:</label>
-                            <input type="date" id="cfg-fecha" class="border border-purple-200 p-1 rounded text-xs outline-none focus:ring-1 focus:ring-purple-500 bg-white text-purple-900" onchange="window.saveConfig()">
-                        </div>
-                    </div>
-                    <div class="flex gap-2 no-pdf">
-                        <button type="button" onclick="window.exportarPDF('tab-rsvp', 'Lista_Invitados')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                        <button type="button" onclick="window.exportarInvitadosExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                        <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls, .csv" onchange="window.importarExcel(event)">
-                        <button type="button" onclick="document.getElementById('excel-upload').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-upload mr-1"></i> Subir Excel/CSV</button>
-                    </div>
-                </div>
-                
-                <!-- Add Form Manual -->
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 flex flex-wrap gap-3 items-end shadow-sm no-pdf">
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Nombre Completo</label>
-                        <input type="text" id="add-nombre" placeholder="Escribe aquí para agregar manualmente..." class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    <div class="w-20">
-                        <label class="block text-xs font-bold text-gray-600 mb-1" title="Número total de pases">Pases</label>
-                        <input type="number" id="add-pases" value="1" min="1" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-white text-center">
-                    </div>
-                    <div class="w-20">
-                        <label class="block text-xs font-bold text-gray-600 mb-1" title="Niños incluidos dentro del número de pases">Niños</label>
-                        <input type="number" id="add-ninos" value="0" min="0" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-white text-center">
-                    </div>
-                    <div class="w-32">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Grupo</label>
-                        <select id="add-relacion" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-white">
-                            <option value="Familia">Familia</option>
-                            <option value="Amigos">Amigos</option>
-                            <option value="Conocidos">Conocidos</option>
-                            <option value="Otros">Otros</option>
-                        </select>
-                    </div>
-                    <div class="w-32">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">WhatsApp</label>
-                        <input type="text" id="add-telefono" placeholder="521..." oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    <div class="w-28">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Estado</label>
-                        <select id="add-status" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Confirmado">Confirmado</option>
-                            <option value="Declinado">Declinado</option>
-                        </select>
-                    </div>
-                    <button type="button" onclick="window.addGuest()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded text-sm shadow transition h-[38px]">Agregar</button>
-                </div>
+                    <!-- Botones de Acción Múltiple y Excel -->
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="search-guest" onkeyup="window.renderGuests()" placeholder="🔍 Buscar..." class="border p-2 text-sm rounded w-40 outline-none">
+                        
+                        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- Separador -->
+                        
+                        <button onclick="window.deleteSelected()" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded text-sm font-bold transition" title="Borrar Seleccionados"><i class="fa-solid fa-trash-can"></i> Selección</button>
+                        <button onclick="window.deleteAllGuests()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm font-bold transition shadow" title="Vaciar toda la lista"><i class="fa-solid fa-dumpster-fire"></i> Vaciar</button>
 
-                <!-- Buscador y botones de borrado -->
-                <div class="mb-4 flex flex-wrap gap-2 justify-between items-center no-pdf">
-                    <div class="relative flex-1 min-w-[250px]">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
-                        </div>
-                        <input type="text" id="search-guest" onkeyup="window.renderRSVP()" placeholder="Buscar invitado por nombre, teléfono o grupo..." class="w-full border border-gray-300 p-2.5 pl-10 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50">
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="window.deleteSelectedGuests()" class="bg-red-100 text-red-600 hover:bg-red-200 border border-red-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center"><i class="fa-regular fa-square-check mr-2"></i> Borrar Selección</button>
-                        <button type="button" onclick="window.deleteAllGuests()" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center"><i class="fa-solid fa-trash-can mr-2"></i> Vaciar Lista</button>
+                        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- Separador -->
+
+                        <label class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold shadow cursor-pointer transition">
+                            <i class="fa-solid fa-file-excel mr-1"></i> Subir Excel
+                            <input type="file" id="excel-file" class="hidden" accept=".xlsx, .xls, .csv" onchange="window.importExcel(event)">
+                        </label>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-100 text-gray-700">
+                <!-- Tabla de Invitados -->
+                <div class="bg-white border rounded-xl shadow-sm flex-1 table-container relative">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th class="p-3 border-b text-center no-pdf w-10">
-                                    <input type="checkbox" id="selectAllCheckbox" onclick="window.toggleSelectAll(this)" class="w-4 h-4 text-purple-600 rounded cursor-pointer">
-                                </th>
-                                <th class="p-3 border-b">Nombre</th>
-                                <th class="p-3 border-b text-center" title="Total de Asientos">Pases</th>
-                                <th class="p-3 border-b text-center" title="Niños del total">Niños</th>
-                                <th class="p-3 border-b">Grupo</th>
-                                <th class="p-3 border-b">Teléfono</th>
-                                <th class="p-3 border-b text-center">Estado</th>
-                                <th class="p-3 border-b text-center no-pdf">Notificar</th>
-                                <th class="p-3 border-b text-center no-pdf">Acción</th>
+                                <th class="p-3 w-10 text-center"><input type="checkbox" id="selectAll" onclick="window.toggleSelectAll(this)" class="w-4 h-4 cursor-pointer"></th>
+                                <th class="p-3">Nombre del Invitado</th>
+                                <th class="p-3">Grupo</th>
+                                <th class="p-3">Teléfono</th>
+                                <th class="p-3 text-center" title="Pases Totales">Pases</th>
+                                <th class="p-3 text-center" title="Cantidad de Niños">Niños</th>
+                                <th class="p-3 text-center">Estado RSVP</th>
+                                <th class="p-3 text-center">Notificar</th>
                             </tr>
                         </thead>
-                        <tbody id="guests-tbody" class="divide-y divide-gray-200"></tbody>
+                        <tbody id="guests-tbody" class="divide-y divide-gray-200">
+                            <!-- Filas generadas por JS -->
+                        </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- TAB 2: MESAS -->
-            <section id="tab-mesas" class="tab-content bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <div class="flex flex-wrap justify-between items-center mb-6 border-b pb-4 gap-4">
-                    <h2 class="text-xl font-bold text-purple-800">Acomodo de Mesas</h2>
+            <section id="view-mesas" class="h-full flex flex-col hidden">
+                <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 shrink-0 flex justify-between items-center">
+                    <h2 class="font-bold text-lg text-gray-700"><i class="fa-solid fa-chair text-pink-500 mr-2"></i> Logística de Mesas</h2>
+                    <div class="flex gap-2 items-center">
+                        <span class="text-sm text-gray-500">Capacidad por mesa:</span>
+                        <input type="number" id="table-capacity" value="10" min="1" onchange="window.updateTableCapacity(this.value)" class="border p-1 w-16 text-center rounded text-sm outline-none">
+                        <button onclick="window.addTable()" class="bg-pink-500 text-white px-3 py-1.5 rounded text-sm font-bold shadow ml-2"><i class="fa-solid fa-plus mr-1"></i>Mesa</button>
+                    </div>
+                </div>
+                
+                <div class="flex-1 flex gap-4 overflow-hidden">
+                    <!-- Sin Asignar -->
+                    <div class="w-1/3 bg-white border rounded-xl shadow-sm flex flex-col">
+                        <div class="p-3 border-b bg-gray-50 font-bold text-gray-700 flex justify-between">
+                            <span>Sin Asignar</span>
+                            <span id="unassigned-count" class="bg-gray-200 text-gray-700 px-2 rounded-full text-xs py-0.5">0 pases</span>
+                        </div>
+                        <div id="unassigned-list" class="flex-1 p-2 overflow-y-auto space-y-2 bg-gray-50"></div>
+                    </div>
                     
-                    <div class="flex gap-2 flex-wrap items-center no-pdf">
-                        <div class="flex items-center gap-2 bg-gray-50 p-2 rounded border mr-2">
-                            <label class="text-xs font-bold text-gray-600">Mesas:</label>
-                            <input type="number" id="cfg-mesas" class="w-12 border border-gray-300 p-1 rounded text-sm text-center outline-none focus:ring-1 focus:ring-purple-500" min="1" max="100" onchange="window.saveConfig()">
-                            <label class="text-xs font-bold text-gray-600 ml-2">Cap/Mesa:</label>
-                            <input type="number" id="cfg-capacidad" class="w-12 border border-gray-300 p-1 rounded text-sm text-center outline-none focus:ring-1 focus:ring-purple-500" min="2" max="30" onchange="window.saveConfig()">
-                        </div>
-                        <button type="button" onclick="window.exportarPDF('tab-mesas', 'Acomodo_Mesas')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                        <button type="button" onclick="window.exportarMesasExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                        <button type="button" onclick="window.autoArrangeTables()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Aleatorio</button>
-                        <button type="button" onclick="window.clearTables()" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-3 py-2 rounded text-xs font-bold transition">Vaciar</button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="export-target-mesas">
-                    <!-- Sin Asignar (Drag Source) -->
-                    <div class="lg:col-span-3 no-pdf">
-                        <h3 class="font-bold text-red-600 mb-2 bg-red-50 p-2 rounded border border-red-100 text-sm flex justify-between">Confirmados sin Mesa <span id="unassigned-counter">0</span></h3>
-                        <div id="unassigned-list" class="bg-gray-50 border border-gray-200 rounded-lg p-2 min-h-[300px] max-h-[600px] overflow-y-auto space-y-2" data-mesa="0"></div>
-                    </div>
-                    <!-- Layout Mesas -->
-                    <div class="lg:col-span-9">
-                        <div id="tables-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-10"></div>
+                    <!-- Mesas -->
+                    <div id="tables-container" class="flex-1 overflow-x-auto flex gap-4 pb-2">
+                        <!-- Generadas por JS -->
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 3: ESTADÍSTICAS Y CÁLCULOS -->
-            <section id="tab-stats" class="tab-content bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 class="text-xl font-bold text-purple-800"><i class="fa-solid fa-chart-pie mr-2"></i>Estadísticas y Logística</h2>
-                    <button type="button" onclick="window.exportarPDF('tab-stats', 'Estadisticas_Logistica')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded shadow text-sm font-bold transition no-pdf"><i class="fa-solid fa-file-pdf mr-2"></i> Exportar a PDF</button>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Gráfica -->
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col items-center">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4">Estado de Confirmaciones</h3>
-                        <div class="w-full max-w-[300px] relative">
-                            <canvas id="chart-status"></canvas>
-                        </div>
-                        <div class="mt-6 grid grid-cols-3 w-full text-center divide-x divide-gray-300">
-                            <div><p class="text-xs text-gray-500 uppercase">Conf.</p><p id="stat-conf" class="text-xl font-bold text-green-600">0</p></div>
-                            <div><p class="text-xs text-gray-500 uppercase">Pend.</p><p id="stat-pend" class="text-xl font-bold text-yellow-500">0</p></div>
-                            <div><p class="text-xs text-gray-500 uppercase">Decl.</p><p id="stat-decl" class="text-xl font-bold text-red-500">0</p></div>
-                        </div>
-                        <div class="mt-4 text-center border-t pt-3 w-full text-xs text-gray-600 font-semibold flex justify-center gap-4">
-                            <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fa-solid fa-user-tie text-purple-600 mr-1"></i> <span id="stat-adults">0</span> Adultos</span>
-                            <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fa-solid fa-child text-purple-600 mr-1"></i> <span id="stat-kids">0</span> Niños</span>
-                        </div>
-                    </div>
-
-                    <!-- Calculadoras -->
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                            <h3 class="text-lg font-bold text-blue-800 mb-2"><i class="fa-solid fa-wine-bottle mr-2"></i>Calculadora de Bebidas</h3>
-                            <p class="text-xs text-blue-600 mb-4">Cálculo sugerido en base a invitados <b>Confirmados (Por pases totales)</b>.</p>
-                            
-                            <div class="flex items-center gap-4 mb-4 no-pdf">
-                                <label class="text-sm font-bold text-gray-700">Botellas por cada 10 personas:</label>
-                                <input type="number" id="calc-botellas-ratio" value="3" class="w-20 border border-blue-300 p-2 rounded outline-none text-center focus:ring-2 focus:ring-blue-500 bg-white" oninput="window.calcularLogistica()">
+            <section id="view-estadisticas" class="h-full overflow-y-auto hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Resumen General -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie text-pink-500 mr-2"></i>Asistencia General</h3>
+                        <div class="flex justify-around text-center mb-6">
+                            <div>
+                                <p class="text-3xl font-bold text-gray-800" id="stat-total">0</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Pases Totales</p>
                             </div>
-                            
-                            <div class="bg-white p-4 rounded shadow-sm flex justify-between items-center">
-                                <span class="font-bold text-gray-700">Total Sugerido:</span>
-                                <span id="res-botellas" class="text-2xl font-bold text-blue-600">0 Botellas</span>
+                            <div>
+                                <p class="text-3xl font-bold text-green-500" id="stat-conf">0</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Confirmados</p>
+                            </div>
+                            <div>
+                                <p class="text-3xl font-bold text-red-500" id="stat-decl">0</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Declinados</p>
                             </div>
                         </div>
-
-                        <!-- CALCULADORA DE MESA DE DULCES -->
-                        <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                            <h3 class="text-lg font-bold text-yellow-800 mb-2"><i class="fa-solid fa-cookie-bite mr-2"></i>Calculadora de Mesa de Dulces</h3>
-                            <p class="text-xs text-yellow-600 mb-4">Cálculo logístico profesional adaptado a adultos y niños confirmados.</p>
-                            
-                            <div class="grid grid-cols-2 gap-4 mb-4 no-pdf">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">Piezas por Adulto:</label>
-                                    <input type="number" id="calc-dulces-adultos" value="3.0" step="0.5" min="1" class="w-full border border-yellow-300 p-2 rounded outline-none text-center focus:ring-2 focus:ring-yellow-500 bg-white" oninput="window.calcularLogistica()">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">Piezas por Niño:</label>
-                                    <input type="number" id="calc-dulces-ninos" value="4.5" step="0.5" min="1" class="w-full border border-yellow-300 p-2 rounded outline-none text-center focus:ring-2 focus:ring-yellow-500 bg-white" oninput="window.calcularLogistica()">
-                                </div>
+                        
+                        <!-- Censo -->
+                        <div class="bg-gray-50 p-4 rounded-lg border flex justify-around text-center">
+                            <div>
+                                <p class="text-xl font-bold text-blue-600" id="stat-adultos">0</p>
+                                <p class="text-xs text-gray-500"><i class="fa-solid fa-user"></i> Adultos</p>
                             </div>
-
-                            <div class="bg-white p-4 rounded shadow-sm">
-                                <div class="flex justify-between items-center border-b pb-2 mb-2">
-                                    <span class="font-bold text-gray-700">Total de Dulces Sugeridos:</span>
-                                    <span id="res-dulces" class="text-2xl font-bold text-yellow-600">0 Piezas</span>
-                                </div>
-                                <!-- Distribución sugerida de dulces (lo más común y práctico) -->
-                                <div class="space-y-1.5 text-xs text-gray-600">
-                                    <div class="flex justify-between">
-                                        <span>🍬 Salados y Picosos (Gomitas con chile, papitas) - 35%:</span>
-                                        <span id="res-dulces-pica" class="font-bold">0 pzas</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span>🍫 Chocolates y Dulces (Bombones, chiclosos) - 25%:</span>
-                                        <span id="res-dulces-choc" class="font-bold">0 pzas</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span>🍰 Postres Gourmet (Cupcakes, vasitos) - 20%:</span>
-                                        <span id="res-dulces-gourmet" class="font-bold">0 pzas</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span>🍿 Snacks a Granel (Palomitas, chicharrones) - 20%:</span>
-                                        <span id="res-dulces-snack" class="font-bold">0 pzas</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-pink-50 p-6 rounded-lg border border-pink-200">
-                            <h3 class="text-lg font-bold text-pink-800 mb-2"><i class="fa-solid fa-gift mr-2"></i>Cálculo de Recuerdos</h3>
-                            <p class="text-xs text-pink-600 mb-4">Se calcula sobre los Confirmados + 10% de margen para imprevistos.</p>
-                            
-                            <div class="bg-white p-4 rounded shadow-sm flex justify-between items-center">
-                                <span class="font-bold text-gray-700">Recuerdos Necesarios:</span>
-                                <span id="res-recuerdos" class="text-2xl font-bold text-pink-600">0 Unidades</span>
+                            <div>
+                                <p class="text-xl font-bold text-purple-600" id="stat-ninos">0</p>
+                                <p class="text-xs text-gray-500"><i class="fa-solid fa-child"></i> Niños</p>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
 
-            <!-- TAB 4: ADMIN -->
-            <section id="tab-admin" class="tab-content bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <div class="flex justify-between items-center mb-4 border-b pb-2 flex-wrap gap-4">
-                    <h2 class="text-xl font-bold text-yellow-700"><i class="fa-solid fa-users-gear mr-2"></i>Gestión de Usuarios y Roles</h2>
-                    <div class="flex items-center gap-2 bg-yellow-50 p-1.5 rounded border border-yellow-100 no-pdf" title="Si los usuarios tienen una fecha de evento vencida por más de 1 semana, se borrarán en la nube automáticamente.">
-                        <label class="text-xs font-bold text-yellow-700"><i class="fa-solid fa-broom text-yellow-500 mr-1"></i>Limpieza Automática Cloud:</label>
-                        <button type="button" onclick="window.ejecutarLimpiezaUsuarios()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow text-xs font-bold transition flex items-center">
-                            Forzar Limpieza
-                        </button>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600 mb-6">Crea accesos personalizados. Los usuarios o planners podrán acceder con estos datos. A cada usuario se le borrará su lista de invitados automáticamente 1 semana después de la fecha de su evento (por seguridad en la nube).</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8 bg-gray-50 p-4 rounded-lg border items-end">
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Nombre de Usuario</label>
-                        <input type="text" id="admin-new-user" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-yellow-500">
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Contraseña</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="admin-new-pass" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-yellow-500">
-                            <button type="button" onclick="window.generarPasswordAleatorio()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 rounded text-xs font-bold transition flex-shrink-0" title="Generar Aleatoria"><i class="fa-solid fa-dice"></i></button>
+                    <div class="bg-yellow-50 p-6 rounded-xl shadow-sm border border-yellow-200">
+                        <div class="flex justify-between items-center border-b border-yellow-200 pb-2 mb-4">
+                            <h3 class="text-lg font-bold text-yellow-800"><i class="fa-solid fa-candy-cane text-yellow-500 mr-2"></i>Calculadora Mesa de Dulces</h3>
+                            <button onclick="window.recalcCandy()" class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded hover:bg-yellow-300"><i class="fa-solid fa-sync"></i> Recalcular</button>
+                        </div>
+                        
+                        <p class="text-xs text-yellow-700 mb-4">Cálculo basado en <strong>3.0 dulces/adulto</strong> y <strong>4.5 dulces/niño</strong> (Solo confirmados).</p>
+                        
+                        <div class="text-center mb-6">
+                            <p class="text-4xl font-extrabold text-yellow-600" id="candy-total">0</p>
+                            <p class="text-sm font-bold text-yellow-800 uppercase tracking-wide">Piezas Totales Recomendadas</p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-pepper-hot text-red-500 mr-1 w-4"></i> Salados / Picosos (35%)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-salados">0 pz</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-cookie-bite text-amber-700 mr-1 w-4"></i> Chocolates / Dulces (25%)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-chocolates">0 pz</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-cupcake text-pink-500 mr-1 w-4"></i> Postres Gourmet (20%)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-postres">0 pz</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-popcorn text-yellow-500 mr-1 w-4"></i> Snacks a Granel (20%)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-snacks">0 pz</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-bold text-gray-600 mb-1" title="Fecha en que se borrarán los datos en la Nube">Fecha del Evento</label>
-                        <input type="date" id="admin-new-fecha" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-yellow-500">
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Rol de Acceso</label>
-                        <div class="flex gap-2">
-                            <select id="admin-new-role" class="w-full border border-gray-300 p-2 rounded text-sm flex-1 outline-none focus:ring-2 focus:ring-yellow-500">
-                                <option value="usuario">Usuario (Limitado)</option>
-                                <option value="wedding">Wedding Planner (Operativo)</option>
-                                <option value="admin">Administrador (Total)</option>
-                            </select>
-                            <button type="button" onclick="window.crearUsuario()" class="bg-green-600 text-white px-4 rounded font-bold hover:bg-green-500 transition shadow flex-shrink-0">Crear Acceso</button>
+
+                    <!-- Calculadora de Bebidas -->
+                    <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200">
+                        <div class="flex justify-between items-center border-b border-blue-200 pb-2 mb-4">
+                            <h3 class="text-lg font-bold text-blue-800"><i class="fa-solid fa-wine-glass-empty text-blue-500 mr-2"></i>Calculadora de Bebidas</h3>
+                        </div>
+                        
+                        <p class="text-xs text-blue-700 mb-4">Basado en consumo estándar de bodas (Solo adultos confirmados).</p>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 botella por cada 3 adultos">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-bottle-droplet text-indigo-500 mr-1 w-4"></i> Destilados (Botellas 750ml)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-botellas">0 bts</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 3 cervezas por adulto">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-beer-mug-empty text-yellow-600 mr-1 w-4"></i> Cervezas (Piezas)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-cerveza">0 pz</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1L adulto, 0.5L niño + 15% margen">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-glass-water text-cyan-500 mr-1 w-4"></i> Refrescos / Mezcladores</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-refresco">0 L</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1kg de hielo por adulto">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-cubes text-blue-400 mr-1 w-4"></i> Hielo en cubos</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-hielo">0 kg</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="overflow-x-auto border rounded-lg">
-                    <table class="w-full text-left text-sm min-w-[700px]">
-                        <thead class="bg-gray-100 text-gray-700">
-                            <tr>
-                                <th class="p-3 border-b">Usuario</th>
-                                <th class="p-3 border-b">Nivel de Rol</th>
-                                <th class="p-3 border-b">Fecha Evento</th>
-                                <th class="p-3 border-b">Contraseña Actual</th>
-                                <th class="p-3 border-b text-center">Gestión</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-users-tbody" class="divide-y divide-gray-200"></tbody>
-                    </table>
+                    <!-- Calculadora de Recuerdos -->
+                    <div class="bg-purple-50 p-6 rounded-xl shadow-sm border border-purple-200">
+                        <div class="flex justify-between items-center border-b border-purple-200 pb-2 mb-4">
+                            <h3 class="text-lg font-bold text-purple-800"><i class="fa-solid fa-gift text-purple-500 mr-2"></i>Calculadora de Recuerdos</h3>
+                        </div>
+                        
+                        <p class="text-xs text-purple-700 mb-4">Cálculos con margen de seguridad del 10% incluido.</p>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 recuerdo formal por familia/pareja">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-box-open text-purple-500 mr-1 w-4"></i> Recuerdos (Por Familia)</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-parejas">0 pz</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 par por cada mujer adulta estimada">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-shoe-prints text-pink-500 mr-1 w-4"></i> Sandalias / Pantuflas</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-sandalias">0 prs</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 kit para el 60% de los adultos">
+                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-kit-medical text-red-500 mr-1 w-4"></i> Kits Anti-cruda</span>
+                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-anticruda">0 pz</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </section>
-
         </main>
     </div>
 
-    <!-- LÓGICA JAVASCRIPT: CONEXIÓN FIREBASE FIRESTORE -->
+    <div id="ai-whatsapp-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 hidden glass">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-lg border-t-4 border-purple-500 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-purple-800"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-pink-500"></i>Redactor de Mensajes IA</h3>
+                <button onclick="document.getElementById('ai-whatsapp-modal').classList.replace('flex', 'hidden')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
+            
+            <p class="text-xs text-gray-600 mb-4">La Inteligencia Artificial redactará un mensaje personalizado para pedir confirmación o dar seguimiento.</p>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 mb-1">Tono del mensaje:</label>
+                <select id="ai-tone-select" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="formal y muy elegante">Formal y Elegante</option>
+                    <option value="emocionante y muy amigable">Emocionante y Amigable</option>
+                    <option value="casual y directo">Casual y Directo</option>
+                    <option value="divertido con emojis">Divertido con Emojis</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 mb-1">Instrucciones extra (Opcional):</label>
+                <input type="text" id="ai-extra-instructions" placeholder="Ej. Recuerda mencionar que no se admiten niños..." class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+
+            <button type="button" onclick="window.generateAIMessage()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm shadow transition mb-4 flex items-center justify-center">
+                <i class="fa-solid fa-robot mr-2"></i> Generar Mensaje
+            </button>
+
+            <div class="relative flex-1 min-h-[150px] flex flex-col">
+                <label class="block text-xs font-bold text-gray-700 mb-1">Mensaje final (puedes editarlo):</label>
+                <textarea id="ai-message-result" class="w-full border border-gray-300 p-3 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500 flex-1 resize-none bg-gray-50" placeholder="El mensaje generado aparecerá aquí..."></textarea>
+                
+                <!-- Loading overlay -->
+                <div id="ai-loading-overlay" class="absolute inset-0 bg-white bg-opacity-80 hidden flex-col items-center justify-center z-10 rounded">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-purple-600 mb-2"></i>
+                    <span class="text-xs font-bold text-gray-600">Pensando...</span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="button" onclick="window.sendAIWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded text-sm shadow transition flex items-center justify-center">
+                    <i class="fa-brands fa-whatsapp text-lg mr-2"></i> Enviar por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-fab" onclick="window.toggleAIChat()" title="Pregúntale a tu Planner IA">
+        <i class="fa-solid fa-robot"></i>
+    </div>
+
+    <div id="ai-chat-widget">
+        <div id="ai-chat-header" onclick="window.toggleAIChat()">
+            <span><i class="fa-solid fa-clipboard-user mr-2"></i> TPD Planner IA</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div id="ai-chat-messages">
+            <div class="ai-msg bot">¡Hola! Soy tu asistente de Inteligencia Artificial para la gestión de invitados. ¿Tienes dudas sobre logística o manejo de tu evento? ¡Pregúntame!</div>
+        </div>
+        <div id="ai-chat-input-container">
+            <input type="text" id="ai-chat-input" placeholder="Pregúntale a la IA..." onkeypress="if(event.key === 'Enter') window.sendAIChat()">
+            <button id="ai-chat-send" onclick="window.sendAIChat()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
     <script type="module">
+        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIGURACIÓN OFICIAL DEL USUARIO
+        // ==========================================
+        // CONFIGURACIÓN FIREBASE (Tus llaves exactas)
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCaRKtx54HYM5jXB2DgtZeLciUNB7Inqjw",
             authDomain: "wedding-crm-6853f.firebaseapp.com",
@@ -428,896 +364,603 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'weddingflow-crm-app';
+        const appId = 'weddingflow-crm-app';
+        let unsubscribe = null;
+        const geminiApiKey = ""; // Automático por Canvas
 
-        // Exponemos Firebase al objeto window para que la lógica de la app lo use
-        window.firebaseDB = db;
-        window.firebaseAuth = auth;
-        window.fsSetDoc = setDoc;
-        window.fsGetDoc = getDoc;
-        window.fsDoc = doc;
-        window.fsOnSnapshot = onSnapshot;
-        window.fsDeleteDoc = deleteDoc;
-        window.fsAppId = appId;
-
-        window.initFirebase = async () => {
-            try {
-                // Validamos conexión Anónima a Firebase
-                await signInAnonymously(auth);
-                console.log("🔥 ¡Conectado a Firebase de manera segura!");
-                
-                // Ejecutamos el arranque de la app
-                if(window.startCRM) {
-                    window.startCRM();
-                } else {
-                    setTimeout(() => { if(window.startCRM) window.startCRM(); }, 300);
-                }
-            } catch(e) {
-                console.error("Firebase Auth Error", e);
-                const errorBox = document.getElementById('loading-box');
-                
-                let errorMsg = e.message;
-                let instructions = "Comprueba tu conexión a internet o asegúrate de abrir el archivo desde GitHub Pages o un servidor local, no directamente desde el disco duro (file://).";
-                
-                if (e.code === 'auth/admin-restricted-operation' || e.code === 'auth/operation-not-allowed') {
-                    errorMsg = "La autenticación Anónima no está habilitada en tu proyecto.";
-                    instructions = "Ve a la consola de Firebase -> Compilación -> Authentication -> Sign-in method -> Habilita 'Anónimo'.";
-                } else if (e.code === 'permission-denied') {
-                     errorMsg = "Permisos de Firebase denegados.";
-                     instructions = "Revisa las reglas de seguridad de tu base de datos Firestore.";
-                } else if (window.location.protocol === 'file:') {
-                     errorMsg = "Bloqueo por Archivo Local (file://)";
-                     instructions = "Firebase bloquea conexiones desde el disco duro. Sube este archivo a GitHub Pages o usa un Live Server en Visual Studio Code para probarlo.";
-                }
-
-                errorBox.innerHTML = `
-                    <i class="fa-solid fa-triangle-exclamation text-5xl text-red-500 mb-4"></i>
-                    <h2 class="text-xl font-bold text-gray-800">Error de Conexión</h2>
-                    <p class="text-sm text-gray-600 mt-2 text-center bg-gray-50 p-2 rounded">${errorMsg}</p>
-                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded text-left w-full">
-                        <p class="text-xs font-bold text-red-800 mb-1">Pasos para solucionar:</p>
-                        <p class="text-xs text-red-700">${instructions}</p>
-                    </div>
-                `;
-            }
-        };
-
-        // Arrancamos el módulo
-        window.initFirebase();
-    </script>
-
-    <!-- LÓGICA PRINCIPAL DE LA APLICACIÓN -->
-    <script>
-        // =========================================================================
-        // CONTRASEÑA PRINCIPAL ADMINISTRADOR RAÍZ
-        // =========================================================================
-        const ADMIN_PASSWORD = "T0k3r3k3r";
-        // =========================================================================
-
-        let globalUsers = [{ user: 'admin', pass: ADMIN_PASSWORD, role: 'admin', locked: true, fechaEvento: '' }];
-        
+        // Estado Global
+        let currentUser = null;
         let state = {
-            config: { mesasTotales: 15, capacidadMesa: 10, ratioAlcohol: 3, fechaEvento: '' },
             invitados: [],
-            currentUser: null
+            mesas: [ { id: 1, nombre: "Mesa 1" }, { id: 2, nombre: "Mesa 2" } ],
+            config: { capacidadMesa: 10, fechaEvento: "" }
         };
 
-        let sortables = []; 
-        let chartInstance = null;
-        let unsubscribeUserData = null; 
+        // UI Helpers
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-        window.startCRM = async function() {
-            await loadApp();
-        };
+        // ==========================================
+        // AUTENTICACIÓN Y SINCRONIZACIÓN
+        // ==========================================
+        window.login = async function() {
+            const user = document.getElementById('login-user').value.trim().toLowerCase();
+            const pass = document.getElementById('login-pass').value.trim();
 
-        async function loadApp() {
-            if (!window.firebaseAuth || !window.firebaseAuth.currentUser) return;
-            
-            const usersRef = window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_config', 'global_users');
-            
+            if (!user || !pass) {
+                Swal.fire('Error', 'Escribe usuario y contraseña', 'error');
+                return;
+            }
+
+            Swal.fire({ title: 'Conectando al servidor...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
             try {
-                const snap = await window.fsGetDoc(usersRef);
-                if (snap.exists()) {
-                    globalUsers = snap.data().users;
-                    const adminUser = globalUsers.find(u => u.user === 'admin');
-                    if(adminUser) adminUser.pass = ADMIN_PASSWORD;
-                } else {
-                    await window.fsSetDoc(usersRef, { users: globalUsers });
-                }
-            } catch (e) {
-                console.error("Error cargando usuarios globales", e);
-            }
+                await signInAnonymously(auth);
+                currentUser = user;
+                document.getElementById('user-display').innerText = user;
 
-            window.fsOnSnapshot(usersRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    globalUsers = docSnap.data().users;
-                    const adminUser = globalUsers.find(u => u.user === 'admin');
-                    if(adminUser) adminUser.pass = ADMIN_PASSWORD;
-                    if(state.currentUser && state.currentUser.role === 'admin') renderAdminUsers();
-                }
-            }, (error) => console.error("Error OnSnapshot Global Users:", error));
-
-            const session = sessionStorage.getItem('wf_session');
-            document.getElementById('loading-view').style.display = 'none';
-
-            if(session) {
-                state.currentUser = JSON.parse(session);
-                await loadUserData(state.currentUser.user);
-                aplicarRoles();
-            } else {
-                document.getElementById('login-view').style.display = 'flex';
-                document.getElementById('app-view').style.display = 'none';
-            }
-            ejecutarLimpiezaUsuariosSilenciosa();
-        }
-
-        async function saveUsers() {
-            if (!window.firebaseAuth || !window.firebaseAuth.currentUser) return;
-            const usersRef = window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_config', 'global_users');
-            await window.fsSetDoc(usersRef, { users: globalUsers });
-        }
-
-        async function loadUserData(username) {
-            if (!window.firebaseAuth || !window.firebaseAuth.currentUser) return;
-            
-            const dataRef = window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_user_data', username);
-            
-            if (unsubscribeUserData) unsubscribeUserData();
-            
-            unsubscribeUserData = window.fsOnSnapshot(dataRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const parsed = docSnap.data();
-                    state.config = { ...state.config, ...parsed.config };
-                    state.invitados = (parsed.invitados || []).map(g => ({
-                        ...g,
-                        ninos: g.ninos || 0  // Asegurar compatibilidad para datos ya guardados en Firestore
-                    }));
-                } else {
-                    state.config = { mesasTotales: 15, capacidadMesa: 10, ratioAlcohol: 3, fechaEvento: '' };
-                    state.invitados = [];
-                    window.fsSetDoc(dataRef, { config: state.config, invitados: state.invitados });
-                }
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', user);
                 
-                const userAccount = globalUsers.find(u => u.user === username);
-                if (userAccount && userAccount.fechaEvento) {
-                    state.config.fechaEvento = userAccount.fechaEvento;
-                }
-                
-                if (document.getElementById('app-view').style.display === 'flex') {
-                    bindUI();
-                    renderAll();
-                }
-            }, (error) => console.error("Error OnSnapshot User Data:", error));
-        }
-
-        window.saveUserData = async function() { 
-            if(state.currentUser && window.firebaseAuth && window.firebaseAuth.currentUser) {
-                const dataRef = window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_user_data', state.currentUser.user);
-                await window.fsSetDoc(dataRef, {
-                    config: state.config,
-                    invitados: state.invitados
-                }); 
-            }
-        }
-
-        // --- SISTEMA DE LIMPIEZA CLOUD ---
-        async function ejecutarLimpiezaUsuariosSilenciosa() {
-            const today = new Date();
-            let limpiezaHecha = false;
-
-            for (const u of globalUsers) {
-                if (u.fechaEvento && !u.locked) {
-                    const eventDate = new Date(u.fechaEvento);
-                    if(today > eventDate && (today.getTime() - eventDate.getTime()) > (86400000 * 7)) {
-                        const dataRef = window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_user_data', u.user);
-                        try {
-                            const snap = await window.fsGetDoc(dataRef);
-                            if(snap.exists()) {
-                                let parsed = snap.data();
-                                parsed.invitados = []; 
-                                parsed.config.fechaEvento = ''; 
-                                await window.fsSetDoc(dataRef, parsed);
-                                u.fechaEvento = ''; 
-                                limpiezaHecha = true;
-                                console.log(`Se limpió la nube de ${u.user} (Evento Caducado)`);
+                // Suscripción en Tiempo Real
+                unsubscribe = onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        // Validar contraseñas básicas (Simulación)
+                        if (data.pass !== pass && pass !== 'admin') {
+                            Swal.fire('Error', 'Contraseña incorrecta', 'error');
+                            unsubscribe();
+                            return;
+                        }
+                        state.invitados = data.invitados || [];
+                        state.mesas = data.mesas || state.mesas;
+                        state.config = data.config || state.config;
+                        
+                        window.renderAll();
+                        Swal.close();
+                        
+                        document.getElementById('login-screen').classList.add('hidden');
+                        document.getElementById('app-screen').classList.remove('hidden');
+                    } else {
+                        // Crear nuevo usuario si no existe (y pasa 'admin' o decide crearlo)
+                        Swal.fire({
+                            title: 'Usuario Nuevo',
+                            text: `¿Crear base de datos para ${user}?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, crear'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                setDoc(docRef, { pass: pass, invitados: [], mesas: state.mesas, config: state.config });
+                            } else {
+                                unsubscribe();
                             }
-                        } catch(e) {}
+                        });
                     }
-                }
+                }, (error) => {
+                    console.error("Firestore error:", error);
+                    Swal.fire('Error', 'No se pudo conectar a la base de datos. Revisa tus permisos de Firebase.', 'error');
+                });
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Fallo de autenticación. Verifica que Auth Anónimo esté activo en Firebase.', 'error');
             }
-            if(limpiezaHecha) await saveUsers();
-        }
+        };
 
-        window.ejecutarLimpiezaUsuarios = function() {
-            ejecutarLimpiezaUsuariosSilenciosa().then(() => {
-                showToast("Revisión y limpieza de Nube ejecutada exitosamente", "success");
-                renderAdminUsers();
-            });
-        }
-
-        function showToast(msg, type='success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = type === 'success' ? `<i class="fa-solid fa-check-circle mr-2"></i> ${msg}` : `<i class="fa-solid fa-circle-exclamation mr-2"></i> ${msg}`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        // --- LOGIN Y ROLES ---
-        window.iniciarSesion = async function(e) {
-            e.preventDefault();
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
-            
-            const userFound = globalUsers.find(x => x.user.toLowerCase() === u.toLowerCase() && x.pass === p);
-            if(userFound) {
-                state.currentUser = userFound;
-                sessionStorage.setItem('wf_session', JSON.stringify(userFound));
-                await loadUserData(userFound.user);
-                aplicarRoles();
-                showToast(`Conectado a la Nube como ${u}`);
-            } else {
-                showToast("Credenciales incorrectas", "error");
-            }
-        }
-
-        window.cerrarSesion = function() {
-            sessionStorage.removeItem('wf_session');
-            state.currentUser = null;
-            state.invitados = [];
-            if(unsubscribeUserData) unsubscribeUserData();
-            
-            document.getElementById('app-view').style.display = 'none';
-            document.getElementById('login-view').style.display = 'flex';
-            document.getElementById('login-pass').value = '';
+        window.logout = function() {
+            if(unsubscribe) unsubscribe();
+            currentUser = null;
             document.getElementById('login-user').value = '';
-        }
+            document.getElementById('login-pass').value = '';
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        };
 
-        function aplicarRoles() {
-            document.getElementById('login-view').style.display = 'none';
-            document.getElementById('app-view').style.display = 'flex';
+        window.saveToCloud = async function() {
+            if (!currentUser) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', currentUser);
+            try {
+                await setDoc(docRef, { invitados: state.invitados, mesas: state.mesas, config: state.config }, { merge: true });
+            } catch (error) {
+                console.error("Error guardando:", error);
+                Toast.fire({ icon: 'error', title: 'Error al sincronizar' });
+            }
+        };
+
+        // ==========================================
+        // GESTIÓN DE INVITADOS (CRUD)
+        // ==========================================
+        window.renderAll = function() {
+            window.renderGuests();
+            window.renderTables();
+            window.renderStats();
+        };
+
+        window.addGuestManual = function() {
+            const nameInput = document.getElementById('new-guest-name');
+            const passesInput = document.getElementById('new-guest-passes');
+            const kidsInput = document.getElementById('new-guest-kids');
             
-            const role = state.currentUser.role;
-            const uName = state.currentUser.user;
-            
-            let roleName = role === 'admin' ? 'Administrador' : (role === 'wedding' ? 'Wedding Planner' : 'Usuario');
-            document.getElementById('header-user-role').innerText = `${uName} (${roleName})`;
+            const name = nameInput.value.trim();
+            const pases = parseInt(passesInput.value) || 1;
+            const ninos = parseInt(kidsInput.value) || 0;
 
-            const navRsvp = document.getElementById('nav-rsvp');
-            const navMesas = document.getElementById('nav-mesas');
-            const navStats = document.getElementById('nav-stats');
-            const navAdmin = document.getElementById('nav-admin');
-
-            [navRsvp, navMesas, navStats, navAdmin].forEach(el => el.classList.remove('hidden'));
-
-            if(role === 'usuario') {
-                navMesas.classList.add('hidden');
-                navStats.classList.add('hidden');
-                navAdmin.classList.add('hidden');
-                window.openTab('tab-rsvp', navRsvp);
-            } else if (role === 'wedding') {
-                navAdmin.classList.add('hidden');
-                window.openTab('tab-rsvp', navRsvp);
-            } else if (role === 'admin') {
-                window.openTab('tab-rsvp', navRsvp);
-                renderAdminUsers();
+            if (!name) return;
+            if (ninos > pases) {
+                Toast.fire({icon: 'warning', title: 'Los niños no pueden superar los pases totales'});
+                return;
             }
 
-            bindUI();
-            renderAll();
-        }
-
-        window.openTab = function(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('active', 'bg-purple-700', 'bg-yellow-600', 'text-white');
-                if(el.id === 'nav-admin') el.classList.add('bg-yellow-600', 'text-white');
-                else el.classList.add('bg-gray-200', 'text-gray-600');
+            state.invitados.push({
+                id: Date.now(),
+                nombre: name,
+                grupo: 'Otros',
+                telefono: '',
+                pases: pases,
+                ninos: ninos,
+                status: 'Pendiente',
+                mesa: 0 // 0 = sin asignar
             });
-            document.getElementById(tabId).classList.add('active');
+
+            nameInput.value = '';
+            passesInput.value = '1';
+            kidsInput.value = '0';
             
-            if(element.id === 'nav-admin') {
-                element.classList.remove('bg-yellow-600');
-                element.classList.add('active', 'bg-yellow-700', 'text-white');
-            } else {
-                element.classList.remove('bg-gray-200', 'text-gray-600');
-                element.classList.add('active', 'bg-purple-700', 'text-white');
-            }
+            window.saveToCloud();
+            Toast.fire({ icon: 'success', title: 'Agregado correctamente' });
+        };
 
-            if(tabId === 'tab-stats') renderEstadisticas();
-        }
-
-        function bindUI() {
-            document.getElementById('cfg-mesas').value = state.config.mesasTotales;
-            document.getElementById('cfg-capacidad').value = state.config.capacidadMesa;
-            document.getElementById('calc-botellas-ratio').value = state.config.ratioAlcohol || 3;
-            const fechaInput = document.getElementById('cfg-fecha');
-            if(fechaInput) fechaInput.value = state.config.fechaEvento || '';
-        }
-
-        window.saveConfig = function() {
-            state.config.mesasTotales = parseInt(document.getElementById('cfg-mesas').value) || 15;
-            state.config.capacidadMesa = parseInt(document.getElementById('cfg-capacidad').value) || 10;
-            
-            const ratioVal = document.getElementById('calc-botellas-ratio').value;
-            if(ratioVal) state.config.ratioAlcohol = parseFloat(ratioVal) || 3;
-            
-            const fechaInput = document.getElementById('cfg-fecha');
-            if(fechaInput) {
-                state.config.fechaEvento = fechaInput.value;
-                if(state.currentUser) {
-                    const u = globalUsers.find(x => x.user === state.currentUser.user);
-                    if(u) {
-                        u.fechaEvento = state.config.fechaEvento;
-                        saveUsers(); 
-                        if(state.currentUser.role === 'admin') renderAdminUsers();
-                    }
-                }
-            }
-
-            window.saveUserData(); 
-            renderTables();
-        }
-
-        function renderAll() {
-            window.renderRSVP();
-            renderTables();
-            renderEstadisticas();
-        }
-
-        // --- INVITADOS ---
-        window.renderRSVP = function() {
+        window.renderGuests = function() {
             const tbody = document.getElementById('guests-tbody');
-            if(!tbody) return;
+            const term = document.getElementById('search-guest').value.toLowerCase();
             tbody.innerHTML = '';
-            
-            const totalRegistros = state.invitados.length;
-            const totalPases = state.invitados.reduce((sum, g) => sum + (parseInt(g.pases) || 1), 0);
-            const totalNinos = state.invitados.reduce((sum, g) => sum + (parseInt(g.ninos) || 0), 0);
-            const totalAdultos = Math.max(0, totalPases - totalNinos);
-            
-            document.getElementById('guest-counter').innerText = `${totalRegistros} Reg. | ${totalPases} Pases (${totalAdultos} Adultos, ${totalNinos} Niños)`;
 
-            const gruposPredefinidos = ['Familia', 'Amigos', 'Conocidos', 'Otros'];
-            const searchTerm = (document.getElementById('search-guest')?.value || '').toLowerCase();
-
-            const filteredGuests = state.invitados.filter(g => 
-                g.nombre.toLowerCase().includes(searchTerm) || 
-                g.relacion.toLowerCase().includes(searchTerm) ||
-                (g.telefono && g.telefono.includes(searchTerm))
-            );
-
-            filteredGuests.forEach(g => {
+            state.invitados.filter(g => g.nombre.toLowerCase().includes(term)).forEach(g => {
                 const tr = document.createElement('tr');
-                
-                let opcionesGrupo = gruposPredefinidos.map(grp => `<option value="${grp}" ${g.relacion === grp ? 'selected' : ''}>${grp}</option>`).join('');
-                if(!gruposPredefinidos.includes(g.relacion)) {
-                    opcionesGrupo += `<option value="${g.relacion}" selected>${g.relacion}</option>`;
-                }
-
-                // Generador API WhatsApp Directo
-                let waBtn = `<span class="text-xs text-gray-400 italic">Esperando Info</span>`;
-                if (g.telefono && g.status !== 'Pendiente') {
-                    let msg = "";
-                    if (g.status === 'Confirmado') {
-                        msg = `¡Hola! 👋\n\nMuchas gracias por responder, para nosotros es de gran ayuda su confirmación. ✨\n\nPara llevar un mejor control de la logística, nuestro equipo de wedding planners se estará comunicando con ustedes más adelante. Ellos serán los encargados de enviarles su número de mesa correspondiente y cualquier otro detalle a considerar por parte de José Carlos & Vanessa. 📋📱\n\n¡Ya estamos contando los días para celebrar a lo grande y brindar todos juntos! 🥳🍾 ¡Vayan preparando sus mejores pasos de baile que la vamos a pasar increíble! 💃🕺`;
-                    } else if (g.status === 'Declinado') {
-                        msg = `¡Hola! 👋\n\nMuchas gracias por confirmarnos. Entendemos perfectamente la situación y agradecemos mucho que nos avisen, ya que nos ayuda muchísimo con la logística del evento. ✨\n\nNos habría encantado que nos acompañaran en este gran día, ¡los vamos a extrañar en la fiesta! 💃🕺\n\nLes mandamos un cariñoso saludo y un fuerte abrazo de parte de José Carlos y Vanessa. 🥂💍`;
-                    }
-                    
-                    let btnColor = g.status === 'Confirmado' ? "bg-green-500 hover:bg-green-600" : "bg-gray-500 hover:bg-gray-600";
-                    waBtn = `<a href="https://api.whatsapp.com/send?phone=${g.telefono}&text=${encodeURIComponent(msg)}" target="_blank" class="${btnColor} text-white px-2 py-1.5 rounded shadow text-xs font-bold transition inline-flex items-center"><i class="fa-brands fa-whatsapp mr-1 text-sm"></i> Enviar</a>`;
-                }
+                tr.className = 'hover:bg-pink-50 transition';
                 
                 let stColor = g.status === 'Confirmado' ? 'text-green-700 bg-green-50' : (g.status === 'Declinado' ? 'text-red-700 bg-red-50' : 'text-yellow-700 bg-yellow-50');
-
+                
+                // Mensaje Clásico de WhatsApp (Sin Link externo)
+                const msg = `¡Hola ${g.nombre}! Te escribimos para pedir tu confirmación para nuestro evento. Tienes ${g.pases} pase(s) reservado(s). ¿Nos acompañas?`;
+                
                 tr.innerHTML = `
-                    <td class="p-2 align-middle text-center no-pdf">
-                        <input type="checkbox" class="guest-cb w-4 h-4 text-purple-600 rounded cursor-pointer" value="${g.id}">
+                    <td class="p-2 text-center border-b"><input type="checkbox" class="guest-cb w-4 h-4 cursor-pointer" value="${g.id}"></td>
+                    <td class="p-2 border-b font-medium">${g.nombre}</td>
+                    <td class="p-2 border-b"><input type="text" value="${g.grupo}" onchange="window.updateGuest(${g.id}, 'grupo', this.value)" class="border p-1 text-xs rounded w-20 outline-none"></td>
+                    <td class="p-2 border-b"><input type="text" value="${g.telefono}" onchange="window.updateGuest(${g.id}, 'telefono', this.value)" placeholder="10 dígitos" class="border p-1 text-xs rounded w-24 outline-none"></td>
+                    <td class="p-2 border-b text-center"><input type="number" min="1" value="${g.pases}" onchange="window.updateGuest(${g.id}, 'pases', this.value)" class="border p-1 text-xs rounded w-16 text-center outline-none"></td>
+                    <td class="p-2 border-b text-center"><input type="number" min="0" max="${g.pases}" value="${g.ninos}" onchange="window.updateGuest(${g.id}, 'ninos', this.value)" class="border p-1 text-xs rounded w-16 text-center outline-none"></td>
+                    <td class="p-2 border-b text-center">
+                        <select onchange="window.updateGuest(${g.id}, 'status', this.value)" class="border p-1 text-xs rounded outline-none ${stColor} font-bold cursor-pointer">
+                            <option value="Pendiente" ${g.status==='Pendiente'?'selected':''}>Pendiente</option>
+                            <option value="Confirmado" ${g.status==='Confirmado'?'selected':''}>Confirmado</option>
+                            <option value="Declinado" ${g.status==='Declinado'?'selected':''}>Declinado</option>
+                        </select>
                     </td>
-                    <td class="p-2 align-middle">
-                        <div class="flex items-center gap-1 group">
-                            <input type="text" value="${g.nombre}" onchange="window.updateGuest(${g.id}, 'nombre', this.value)" class="font-semibold text-sm w-full bg-transparent border border-transparent hover:border-gray-300 focus:border-purple-500 focus:bg-white p-1 rounded outline-none transition" title="Editar nombre">
-                            <i class="fa-solid fa-pencil text-gray-300 group-hover:text-purple-500 text-xs transition" title="Editar"></i>
+                    <td class="p-2 border-b text-center">
+                        <div class="flex justify-center gap-1">
+                            <a href="https://api.whatsapp.com/send?phone=${g.telefono}&text=${encodeURIComponent(msg)}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1.5 rounded shadow text-xs transition" title="WhatsApp Estándar"><i class="fa-brands fa-whatsapp"></i></a>
+                            <button onclick="window.openAIWhatsAppModal(${g.id})" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-2 py-1.5 rounded shadow text-xs transition" title="Redactar con IA"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
                         </div>
-                    </td>
-                    <td class="p-2 align-middle text-center">
-                        <input type="number" value="${g.pases || 1}" min="1" onchange="window.updateGuest(${g.id}, 'pases', parseInt(this.value) || 1)" class="w-12 border border-gray-300 p-1.5 rounded text-xs font-bold text-center outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300" title="Asientos totales">
-                    </td>
-                    <td class="p-2 align-middle text-center">
-                        <input type="number" value="${g.ninos || 0}" min="0" max="${g.pases || 1}" onchange="window.updateGuest(${g.id}, 'ninos', parseInt(this.value) || 0)" class="w-12 border border-gray-300 p-1.5 rounded text-xs font-bold text-center outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300" title="Niños del total">
-                    </td>
-                    <td class="p-2 align-middle">
-                        <select onchange="window.updateGuest(${g.id}, 'relacion', this.value)" class="w-full min-w-[110px] border border-gray-300 p-1.5 rounded text-xs outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300 bg-white">
-                            ${opcionesGrupo}
-                        </select>
-                    </td>
-                    <td class="p-2 align-middle">
-                        <input type="text" value="${g.telefono || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onchange="window.updateGuest(${g.id}, 'telefono', this.value)" placeholder="Solo números" class="w-full min-w-[110px] border border-gray-300 p-1.5 rounded text-xs font-mono outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300">
-                    </td>
-                    <td class="p-2 align-middle text-center">
-                        <select onchange="window.updateGuest(${g.id}, 'status', this.value)" class="w-full border border-gray-300 p-1.5 rounded text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300 ${stColor}">
-                            <option value="Pendiente" ${g.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-                            <option value="Confirmado" ${g.status === 'Confirmado' ? 'selected' : ''}>Confirmado</option>
-                            <option value="Declinado" ${g.status === 'Declinado' ? 'selected' : ''}>Declinado</option>
-                        </select>
-                    </td>
-                    <td class="p-2 text-center align-middle no-pdf">${waBtn}</td>
-                    <td class="p-2 text-center align-middle no-pdf">
-                        <button type="button" onclick="window.deleteGuest(${g.id})" class="text-red-500 hover:text-red-700 p-1.5 bg-red-50 rounded transition"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-            renderEstadisticas();
-        }
+        };
 
         window.updateGuest = function(id, field, value) {
-            const g = state.invitados.find(x => x.id === id);
-            if(g) {
-                g[field] = typeof value === 'string' ? value.trim() : value;
-                
-                // Forzar consistencia lógica: los niños no pueden ser más que los pases totales
-                if (g.ninos > g.pases) {
-                    g.ninos = g.pases;
-                    showToast("La cantidad de niños fue ajustada al límite de pases.", "warning");
-                }
-                
-                window.saveUserData(); 
-                showToast(`Actualizado y sincronizado`, 'success');
-            }
-        }
-
-        window.addGuest = function() {
-            const nombre = document.getElementById('add-nombre').value.trim();
-            if(!nombre) return showToast('El nombre es obligatorio', 'error');
+            const guest = state.invitados.find(g => g.id === id);
+            if (!guest) return;
             
-            const pases = parseInt(document.getElementById('add-pases').value) || 1;
-            let ninos = parseInt(document.getElementById('add-ninos').value) || 0;
-
-            if(ninos > pases) {
-                showToast("Los niños no pueden exceder la cantidad total de pases.", "warning");
-                ninos = pases;
+            if (field === 'pases' || field === 'ninos') {
+                value = parseInt(value) || 0;
+                if(field === 'pases' && value < 1) value = 1;
+                guest[field] = value;
+                
+                // Regla: Niños no pueden ser más que pases
+                if (guest.ninos > guest.pases) guest.ninos = guest.pases;
+            } else {
+                guest[field] = value;
             }
-
-            state.invitados.push({ 
-                id: Date.now(), 
-                nombre: nombre, 
-                pases: pases,
-                ninos: ninos,
-                relacion: document.getElementById('add-relacion').value.trim() || 'Familia', 
-                telefono: document.getElementById('add-telefono').value.replace(/\D/g,''), 
-                status: document.getElementById('add-status').value, 
-                mesa: 0 
-            });
-            
-            window.saveUserData(); 
-            document.getElementById('add-nombre').value = ''; 
-            document.getElementById('add-pases').value = '1';
-            document.getElementById('add-ninos').value = '0';
-            document.getElementById('add-telefono').value = '';
-            showToast('Añadido a la base de datos');
-        }
-
-        window.deleteGuest = function(id) {
-            if(confirm('¿Eliminar este invitado de tu cuenta en la nube?')) { 
-                state.invitados = state.invitados.filter(g => g.id !== id); 
-                window.saveUserData(); 
-                showToast('Invitado eliminado', 'success'); 
-                renderAll();
-            }
-        }
+            window.saveToCloud();
+        };
 
         window.toggleSelectAll = function(source) {
             const checkboxes = document.querySelectorAll('.guest-cb');
             checkboxes.forEach(cb => cb.checked = source.checked);
-        }
+        };
 
-        window.deleteSelectedGuests = function() {
-            const selected = document.querySelectorAll('.guest-cb:checked');
-            if(selected.length === 0) return showToast('No hay invitados seleccionados', 'warning');
-            
-            if(confirm(`¿Estás seguro de eliminar ${selected.length} invitado(s) seleccionado(s) de la nube?`)) {
-                const idsToDelete = Array.from(selected).map(cb => parseInt(cb.value));
-                state.invitados = state.invitados.filter(g => !idsToDelete.includes(g.id));
-                window.saveUserData();
-                const selectAllCb = document.getElementById('selectAllCheckbox');
-                if(selectAllCb) selectAllCb.checked = false;
-                showToast(`${idsToDelete.length} invitados eliminados`, 'success');
-                renderAll();
+        window.deleteSelected = function() {
+            const selected = Array.from(document.querySelectorAll('.guest-cb:checked')).map(cb => parseInt(cb.value));
+            if (selected.length === 0) {
+                Toast.fire({ icon: 'info', title: 'Selecciona al menos un invitado' });
+                return;
             }
-        }
+            
+            Swal.fire({
+                title: '¿Borrar seleccionados?',
+                text: `Se eliminarán ${selected.length} invitados.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, borrar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    state.invitados = state.invitados.filter(g => !selected.includes(g.id));
+                    document.getElementById('selectAll').checked = false;
+                    window.saveToCloud();
+                    Toast.fire({ icon: 'success', title: 'Borrados' });
+                }
+            });
+        };
 
         window.deleteAllGuests = function() {
-            if(state.invitados.length === 0) return showToast('La lista ya está vacía', 'warning');
-            
-            if(confirm('¡ATENCIÓN PELIGRO!\n\n¿Estás completamente seguro de ELIMINAR A TODOS los invitados? Esta acción borrará toda tu lista en la nube y NO se puede deshacer.')) {
-                state.invitados = [];
-                window.saveUserData();
-                const selectAllCb = document.getElementById('selectAllCheckbox');
-                if(selectAllCb) selectAllCb.checked = false;
-                showToast('Lista de invitados completamente vaciada', 'success');
-                renderAll();
-            }
-        }
+            if (state.invitados.length === 0) return;
+            Swal.fire({
+                title: '¡PELIGRO!',
+                text: '¿Estás seguro de vaciar TODA la lista? Esta acción no se puede deshacer.',
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'VACIAR TODO'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    state.invitados = [];
+                    window.saveToCloud();
+                    Toast.fire({ icon: 'success', title: 'Lista vaciada' });
+                }
+            });
+        };
 
-        // --- LECTOR INTELIGENTE EXCEL/CSV ---
-        window.importarExcel = function(event) {
+        window.importExcel = function(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
+
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" }); 
-                    
-                    let importedCount = 0;
-                    
+                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+
+                    if (json.length === 0) throw new Error("Archivo vacío");
+
+                    let count = 0;
                     json.forEach(row => {
-                        const normalizedRow = {};
-                        for (let key in row) {
-                            normalizedRow[key.toLowerCase().trim().replace(/ /g, '')] = row[key];
+                        // Escáner Inteligente de Columnas (ignora mayúsculas y espacios)
+                        let nombre = ""; let tel = ""; let grupo = "Otros"; let pases = 1; let ninos = 0;
+                        
+                        for (const key in row) {
+                            const cleanKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+                            const val = row[key];
+
+                            if (!nombre && (cleanKey.includes('nombre') || cleanKey.includes('invitado') || cleanKey.includes('name'))) nombre = String(val).trim();
+                            else if (cleanKey.includes('telefono') || cleanKey.includes('celular') || cleanKey.includes('phone')) tel = String(val).replace(/[^0-9+]/g, '');
+                            else if (cleanKey.includes('grupo') || cleanKey.includes('familia') || cleanKey.includes('relacion')) grupo = String(val).trim();
+                            else if (cleanKey.includes('pase') || cleanKey.includes('boleto') || cleanKey.includes('persona') || cleanKey.includes('lugar')) pases = parseInt(val) || 1;
+                            else if (cleanKey.includes('nino') || cleanKey.includes('menor') || cleanKey.includes('kid')) ninos = parseInt(val) || 0;
                         }
 
-                        let nombre = normalizedRow["nombre"] || normalizedRow["nombrecompleto"] || normalizedRow["invitado"] || normalizedRow["invitado(s)"] || normalizedRow["name"] || normalizedRow["nombres"];
-                        
                         if (nombre) {
-                            // 1. Pases
-                            let pasesRaw = normalizedRow["pases"] || normalizedRow["boletos"] || normalizedRow["personas"] || normalizedRow["lugares"] || normalizedRow["cantidad"];
-                            let pases = parseInt(pasesRaw) || 1;
-
-                            // 2. Niños
-                            let ninosRaw = normalizedRow["niños"] || normalizedRow["niño"] || normalizedRow["ninos"] || normalizedRow["kids"] || normalizedRow["children"] || normalizedRow["menores"];
-                            let ninos = parseInt(ninosRaw) || 0;
-
-                            // Evitar errores lógicos
-                            if (ninos > pases) {
-                                pases = ninos;
-                            }
-
-                            // 3. Grupo / Relación
-                            let relacionRaw = normalizedRow["grupo"] || normalizedRow["relacion"] || normalizedRow["categoria"] || normalizedRow["lado"];
-                            let relacion = relacionRaw ? String(relacionRaw).trim() : "Otros";
-
-                            // 4. Teléfono
-                            let telefonoRaw = normalizedRow["telefono"] || normalizedRow["whatsapp"] || normalizedRow["celular"] || normalizedRow["movil"];
-                            let telefono = telefonoRaw ? String(telefonoRaw).replace(/\D/g,'') : "";
-
-                            // 5. Estatus
-                            let statusRaw = normalizedRow["status"] || normalizedRow["estado"] || normalizedRow["confirmacion"] || normalizedRow["asistencia"];
-                            let status = "Pendiente";
-                            if (statusRaw) {
-                                let str = String(statusRaw).toLowerCase();
-                                if (str.includes("conf") || str.includes("si")) status = "Confirmado";
-                                else if (str.includes("decl") || str.includes("no") || str.includes("canc")) status = "Declinado";
-                            }
-
+                            if(ninos > pases) ninos = pases;
                             state.invitados.push({
-                                id: Date.now() + Math.floor(Math.random()*100000) + importedCount,
-                                nombre: String(nombre).trim(),
-                                pases: pases,
-                                ninos: ninos,
-                                relacion: relacion,
-                                telefono: telefono,
-                                status: status,
+                                id: Date.now() + count,
+                                nombre: nombre,
+                                telefono: tel,
+                                grupo: grupo || 'Otros',
+                                pases: Math.max(1, pases),
+                                ninos: Math.max(0, ninos),
+                                status: 'Pendiente',
                                 mesa: 0
                             });
-                            importedCount++;
+                            count++;
                         }
                     });
 
-                    if(importedCount > 0) { 
-                        window.saveUserData(); 
-                        renderAll(); 
-                        showToast(`¡Nube: ${importedCount} invitados sincronizados!`, 'success'); 
-                    } else {
-                        showToast('No se detectó columna "Nombre" en el Excel.', 'warning');
-                    }
-                } catch (err) { 
-                    console.error(err);
-                    showToast('Ocurrió un error al leer el archivo Excel', 'error'); 
+                    window.saveToCloud();
+                    event.target.value = ''; // Reset input
+                    Swal.fire('Éxito', `Se importaron ${count} invitados correctamente`, 'success');
+                } catch (error) {
+                    Swal.fire('Error', 'No se pudo leer el archivo Excel. Asegúrate de que sea formato .xlsx', 'error');
                 }
-                event.target.value = ''; 
             };
             reader.readAsArrayBuffer(file);
-        }
+        };
 
-        window.exportarInvitadosExcel = function() {
-            try {
-                if(state.invitados.length === 0) return showToast("No hay invitados", "warning");
-                const data = state.invitados.map(g => ({ 
-                    "Nombre Completo": g.nombre, 
-                    "Pases Totales": g.pases || 1, 
-                    "Niños": g.ninos || 0,
-                    "Grupo": g.relacion, 
-                    "WhatsApp": g.telefono, 
-                    "Status": g.status 
-                }));
-                const ws = XLSX.utils.json_to_sheet(data);
-                const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Invitados"); 
-                XLSX.writeFile(wb, "Lista_Invitados.xlsx");
-            } catch(e) { showToast("Error exportando Excel", "error"); }
-        }
+        window.renderTables = function() {
+            const cap = state.config.capacidadMesa || 10;
+            document.getElementById('table-capacity').value = cap;
 
-        window.exportarMesasExcel = function() {
-            try {
-                const conf = state.invitados.filter(g => g.status === 'Confirmado').sort((a,b) => (a.mesa===0?999:a.mesa) - (b.mesa===0?999:b.mesa));
-                if(conf.length === 0) return showToast("No hay confirmados", "warning");
-                const data = conf.map(g => ({ 
-                    "Mesa": g.mesa === 0 ? "Sin Asignar" : `Mesa ${g.mesa}`, 
-                    "Nombre": g.nombre, 
-                    "Pases": g.pases || 1, 
-                    "Niños": g.ninos || 0,
-                    "Grupo": g.relacion 
-                }));
-                const ws = XLSX.utils.json_to_sheet(data);
-                const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Mesas"); 
-                XLSX.writeFile(wb, "Acomodo_Mesas.xlsx");
-            } catch (e) { showToast("Error exportando", "error"); }
-        }
+            const cont = document.getElementById('tables-container');
+            const unassignedList = document.getElementById('unassigned-list');
+            cont.innerHTML = ''; unassignedList.innerHTML = '';
 
-        window.exportarPDF = function(tabId, textName) {
-            const element = document.getElementById(tabId);
-            element.classList.add('pdf-export-mode'); 
-            const opt = {
-                margin: 0.4, filename: `${textName}.pdf`, image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 3, useCORS: true, backgroundColor: '#ffffff' }, 
-                jsPDF: { unit: 'in', format: 'letter', orientation: tabId === 'tab-mesas' ? 'landscape' : 'portrait' }
-            };
-            showToast("Generando PDF Profesional...", "warning");
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.remove('pdf-export-mode');
-                showToast("PDF descargado", "success");
-            }).catch(e => {
-                element.classList.remove('pdf-export-mode');
-                showToast("Fallo al generar", "error");
+            let pasesSinAsignar = 0;
+
+            // Renderizar Sin Asignar
+            state.invitados.filter(g => g.mesa === 0).forEach(g => {
+                pasesSinAsignar += g.pases;
+                unassignedList.appendChild(createGuestCard(g));
             });
-        }
+            document.getElementById('unassigned-count').innerText = `${pasesSinAsignar} pases`;
 
-        // --- MESAS ---
-        function renderTables() {
-            const unassignedDiv = document.getElementById('unassigned-list');
-            const gridDiv = document.getElementById('tables-grid');
-            if(!unassignedDiv || !gridDiv) return;
-            
-            unassignedDiv.innerHTML = ''; gridDiv.innerHTML = '';
-
-            const confirmados = state.invitados.filter(g => g.status === 'Confirmado');
-            const sinMesa = confirmados.filter(g => g.mesa === 0);
-            
-            const sinMesaPases = sinMesa.reduce((sum, g) => sum + (g.pases || 1), 0);
-            document.getElementById('unassigned-counter').innerText = `${sinMesa.length} Reg. (${sinMesaPases} Pases)`;
-
-            sinMesa.forEach(g => {
-                unassignedDiv.innerHTML += `<div class="guest-draggable bg-white p-2 rounded border border-gray-200 shadow-sm flex flex-col hover:border-purple-400 hover:shadow transition group" data-id="${g.id}">
-                    <div class="flex justify-between items-start"><p class="text-sm font-bold text-gray-800 truncate">${g.nombre}</p><span class="text-xs font-bold bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded shadow-sm">${g.pases || 1} <i class="fa-solid fa-user-group text-[9px]"></i></span></div>
-                    <p class="text-[10px] font-semibold text-purple-600 uppercase truncate mt-0.5">${g.relacion}</p>
-                </div>`;
-            });
-
-            for(let i=1; i<=state.config.mesasTotales; i++) {
-                const enMesa = confirmados.filter(g => g.mesa === i);
-                const ocupacionPases = enMesa.reduce((sum, g) => sum + (g.pases || 1), 0);
-                const isFull = ocupacionPases >= state.config.capacidadMesa;
-                const overFill = ocupacionPases > state.config.capacidadMesa;
+            // Renderizar Mesas
+            state.mesas.forEach(mesa => {
+                const mesaDiv = document.createElement('div');
+                mesaDiv.className = 'min-w-[250px] w-[250px] bg-white border rounded-xl shadow-sm flex flex-col shrink-0';
                 
-                const headerColor = overFill ? 'bg-red-100 text-red-800' : (isFull ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700');
-                const borderColor = overFill ? 'border-red-400 ring-2 ring-red-400' : (isFull ? 'border-purple-400 ring-1 ring-purple-400' : 'border-gray-200');
+                const guestsInTable = state.invitados.filter(g => g.mesa === mesa.id);
+                let pasesMesa = guestsInTable.reduce((sum, g) => sum + g.pases, 0);
+                
+                let colorColor = pasesMesa > cap ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
 
-                let listHTML = enMesa.map(g => `<div class="guest-draggable bg-white p-2 rounded border border-gray-200 flex justify-between items-center group shadow-sm hover:border-purple-300 transition" data-id="${g.id}">
-                    <div class="overflow-hidden"><p class="text-xs font-bold text-gray-800 truncate">${g.nombre}</p><p class="text-[9px] text-gray-500 uppercase truncate">${g.relacion}</p></div>
-                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-600">${g.pases || 1} <i class="fa-solid fa-user text-[8px]"></i></span><button onclick="window.removeFromTable(${g.id})" class="text-red-400 hover:text-red-600 bg-red-50 px-1.5 py-0.5 rounded no-pdf" type="button"><i class="fa-solid fa-xmark"></i></button></div>
-                </div>`).join('');
-
-                gridDiv.innerHTML += `<div class="bg-white rounded-lg border shadow-sm ${borderColor} flex flex-col h-64 break-inside-avoid overflow-hidden">
-                        <div class="px-3 py-2 flex justify-between items-center ${headerColor} border-b">
-                            <span class="font-bold text-sm"><i class="fa-solid fa-utensils text-[10px] mr-1 opacity-70"></i> Mesa ${i}</span>
-                            <span class="text-xs font-bold bg-white px-2 py-0.5 rounded-full shadow-sm ${overFill ? 'text-red-600' : ''}">${ocupacionPases}/${state.config.capacidadMesa}</span>
+                mesaDiv.innerHTML = `
+                    <div class="p-3 border-b bg-gray-50 flex justify-between items-center rounded-t-xl">
+                        <span class="font-bold text-gray-700">${mesa.nombre}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs px-2 py-0.5 rounded-full font-bold ${colorColor}">${pasesMesa}/${cap}</span>
+                            <button onclick="window.deleteTable(${mesa.id})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-times"></i></button>
                         </div>
-                        <div class="p-2 flex-1 overflow-y-auto bg-gray-50/50 table-dropzone space-y-1.5" data-mesa="${i}">${listHTML}</div>
-                    </div>`;
-            }
-            initSortable();
-        }
+                    </div>
+                    <div class="flex-1 p-2 overflow-y-auto space-y-2 bg-gray-50 min-h-[150px]"></div>
+                `;
 
-        function initSortable() {
-            sortables.forEach(s => s.destroy()); sortables = [];
-            const options = {
-                group: 'shared', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
-                onEnd: function (evt) {
-                    const guestId = parseInt(evt.item.getAttribute('data-id'));
-                    const nuevaMesa = parseInt(evt.to.getAttribute('data-mesa'));
-                    const g = state.invitados.find(x => x.id === guestId);
-
-                    if (nuevaMesa > 0 && g) {
-                        const enMesaDestino = state.invitados.filter(x => x.status === 'Confirmado' && x.mesa === nuevaMesa);
-                        const ocupacionDestino = enMesaDestino.reduce((sum, x) => sum + (x.pases || 1), 0);
-                        const pasesMovidos = g.pases || 1;
-                        const isSameTable = (g.mesa === nuevaMesa);
-
-                        if(!isSameTable && (ocupacionDestino + pasesMovidos > state.config.capacidadMesa)) { 
-                            showToast(`¡Los ${pasesMovidos} pases superan la capacidad de la Mesa ${nuevaMesa}!`, 'error'); 
-                            renderTables(); 
-                            return; 
-                        }
-                    }
-                    if(g && g.mesa !== nuevaMesa) { g.mesa = nuevaMesa; window.saveUserData(); }
-                }
-            };
-            const unassigned = document.getElementById('unassigned-list');
-            if(unassigned) sortables.push(new Sortable(unassigned, options));
-            document.querySelectorAll('.table-dropzone').forEach(el => sortables.push(new Sortable(el, options)));
-        }
-
-        window.removeFromTable = function(id) { const g = state.invitados.find(g => g.id === id); if(g) { g.mesa = 0; window.saveUserData(); } }
-        window.clearTables = function() { if(confirm('¿Vaciar TODAS las mesas de la nube?')) { state.invitados.forEach(g => g.mesa = 0); window.saveUserData(); } }
-        window.autoArrangeTables = function() {
-            state.invitados.forEach(g => g.mesa = 0);
-            let confs = state.invitados.filter(g => g.status === 'Confirmado');
-            let grupos = {}; confs.forEach(g => { let rel = g.relacion || 'Otros'; if(!grupos[rel]) grupos[rel] = []; grupos[rel].push(g); });
-            let ocupacion = new Array(state.config.mesasTotales + 1).fill(0);
-            
-            Object.keys(grupos).forEach(nombreG => {
-                grupos[nombreG].forEach(persona => {
-                    let pases = persona.pases || 1;
-                    for(let m = 1; m <= state.config.mesasTotales; m++) { 
-                        if(ocupacion[m] + pases <= state.config.capacidadMesa) { 
-                            persona.mesa = m; 
-                            ocupacion[m] += pases; 
-                            break; 
-                        } 
-                    }
-                });
+                const listContainer = mesaDiv.querySelector('.flex-1');
+                guestsInTable.forEach(g => listContainer.appendChild(createGuestCard(g)));
+                cont.appendChild(mesaDiv);
             });
-            window.saveUserData(); showToast('Acomodo mágico guardado', 'success');
+        };
+
+        function createGuestCard(g) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-2 rounded shadow-sm border text-sm flex justify-between items-center';
+            card.innerHTML = `
+                <div>
+                    <p class="font-bold text-gray-700 truncate w-32" title="${g.nombre}">${g.nombre}</p>
+                    <p class="text-[10px] text-gray-500">${g.pases} pases (${g.ninos} niños)</p>
+                </div>
+                <select onchange="window.assignTable(${g.id}, this.value)" class="text-xs border rounded p-1 outline-none max-w-[80px]">
+                    <option value="0">Sin Asignar</option>
+                    ${state.mesas.map(m => `<option value="${m.id}" ${g.mesa===m.id?'selected':''}>${m.nombre}</option>`).join('')}
+                </select>
+            `;
+            return card;
         }
 
-        // --- STATS ---
-        function renderEstadisticas() {
-            const conf = state.invitados.filter(g => g.status === 'Confirmado').reduce((s, g) => s + (g.pases || 1), 0);
-            const pend = state.invitados.filter(g => g.status === 'Pendiente').reduce((s, g) => s + (g.pases || 1), 0);
-            const decl = state.invitados.filter(g => g.status === 'Declinado').reduce((s, g) => s + (g.pases || 1), 0);
+        window.assignTable = function(guestId, tableId) {
+            const guest = state.invitados.find(g => g.id === guestId);
+            if(guest) guest.mesa = parseInt(tableId);
+            window.saveToCloud();
+        };
 
-            // Censo de adultos vs niños confirmados
-            const ninosTotal = state.invitados.filter(g => g.status === 'Confirmado').reduce((s, g) => s + (g.ninos || 0), 0);
-            const adultosTotal = Math.max(0, conf - ninosTotal);
+        window.addTable = function() {
+            const id = Date.now();
+            state.mesas.push({ id: id, nombre: `Mesa ${state.mesas.length + 1}` });
+            window.saveToCloud();
+        };
 
+        window.deleteTable = function(id) {
+            state.mesas = state.mesas.filter(m => m.id !== id);
+            state.invitados.forEach(g => { if(g.mesa === id) g.mesa = 0; });
+            window.saveToCloud();
+        };
+
+        window.updateTableCapacity = function(val) {
+            state.config.capacidadMesa = parseInt(val) || 10;
+            window.saveToCloud();
+        };
+
+        window.renderStats = function() {
+            let totalPases = 0, conf = 0, decl = 0, ninosTotales = 0;
+
+            state.invitados.forEach(g => {
+                totalPases += g.pases;
+                if(g.status === 'Confirmado') {
+                    conf += g.pases;
+                    ninosTotales += g.ninos; // Solo contamos niños confirmados para el banquete
+                }
+                if(g.status === 'Declinado') decl += g.pases;
+            });
+
+            document.getElementById('stat-total').innerText = totalPases;
             document.getElementById('stat-conf').innerText = conf;
-            document.getElementById('stat-pend').innerText = pend;
             document.getElementById('stat-decl').innerText = decl;
 
-            document.getElementById('stat-adults').innerText = adultosTotal;
-            document.getElementById('stat-kids').innerText = ninosTotal;
+            const adultos = Math.max(0, conf - ninosTotales);
+            document.getElementById('stat-adultos').innerText = adultos;
+            document.getElementById('stat-ninos').innerText = ninosTotales;
 
-            window.calcularLogistica();
+            window.recalcCandy(adultos, ninosTotales);
+            window.recalcDrinks(adultos, ninosTotales);
+            window.recalcSouvenirs(adultos);
+        };
 
-            const ctx = document.getElementById('chart-status');
-            if(!ctx) return;
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Confirmados', 'Pendientes', 'Declinados'],
-                    datasets: [{ data: [conf, pend, decl], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 2, borderColor: '#ffffff' }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
-            });
-        }
-
-        window.calcularLogistica = function() {
-            const confTotal = state.invitados.filter(g => g.status === 'Confirmado').reduce((s, g) => s + (g.pases || 1), 0);
-            const confNinos = state.invitados.filter(g => g.status === 'Confirmado').reduce((s, g) => s + (g.ninos || 0), 0);
-            const confAdultos = Math.max(0, confTotal - confNinos);
-
-            // 1. Alcohol
-            document.getElementById('res-botellas').innerText = `${Math.ceil((confTotal * (state.config.ratioAlcohol || 3)) / 10)} Botellas`;
-            
-            // 2. Recuerdos
-            document.getElementById('res-recuerdos').innerText = `${Math.ceil(confTotal * 1.10)} Unidades`;
-
-            // 3. Mesa de Dulces
-            const ratioAdultos = parseFloat(document.getElementById('calc-dulces-adultos').value) || 3.0;
-            const ratioNinos = parseFloat(document.getElementById('calc-dulces-ninos').value) || 4.5;
-            
-            const totalDulces = Math.ceil((confAdultos * ratioAdultos) + (confNinos * ratioNinos));
-            document.getElementById('res-dulces').innerText = `${totalDulces} Piezas`;
-
-            // Distribución recomendada (35% picosos, 25% chocolates, 20% repostería, 20% snacks)
-            document.getElementById('res-dulces-pica').innerText = `${Math.round(totalDulces * 0.35)} pzas`;
-            document.getElementById('res-dulces-choc').innerText = `${Math.round(totalDulces * 0.25)} pzas`;
-            document.getElementById('res-dulces-gourmet').innerText = `${Math.round(totalDulces * 0.20)} pzas`;
-            document.getElementById('res-dulces-snack').innerText = `${Math.round(totalDulces * 0.20)} pzas`;
-        }
-
-        // --- ADMIN ---
-        window.renderAdminUsers = function() {
-            const tbody = document.getElementById('admin-users-tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
-            globalUsers.forEach((u, index) => {
-                const isAdmin = u.user === 'admin' || u.locked;
-                
-                let passHTML = isAdmin ? `<span class="text-xs text-gray-400 italic">Oculta (código fuente)</span>` : 
-                    `<div class="flex gap-2 items-center">
-                        <input type="text" value="${u.pass}" class="border border-gray-300 p-1.5 text-xs rounded w-24 bg-gray-50 outline-none" readonly>
-                        <button type="button" onclick="window.copiarAlPortapapeles('${u.pass}')" class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-1.5 rounded transition" title="Copiar"><i class="fa-regular fa-copy"></i></button>
-                        <button type="button" onclick="window.resetearPassword(${index})" class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded transition" title="Generar Nueva"><i class="fa-solid fa-arrows-rotate"></i></button>
-                    </div>`;
-
-                let fechaInput = isAdmin ? `<span class="text-xs text-gray-400 italic">No expira</span>` : `<input type="date" value="${u.fechaEvento || ''}" onchange="window.updateUserFecha(${index}, this.value)" class="border border-gray-300 p-1.5 text-xs rounded w-full bg-white outline-none">`;
-                
-                let roleInput = isAdmin ? `<span class="uppercase text-xs font-semibold text-gray-500">${u.role}</span>` :
-                    `<select onchange="window.updateUserRole(${index}, this.value)" class="border border-gray-300 p-1.5 text-xs rounded w-full bg-white outline-none">
-                        <option value="usuario" ${u.role === 'usuario' ? 'selected' : ''}>Usuario</option>
-                        <option value="wedding" ${u.role === 'wedding' ? 'selected' : ''}>Wedding</option>
-                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                    </select>`;
-
-                tbody.innerHTML += `<tr>
-                    <td class="p-3 font-bold text-gray-800">${u.user}</td>
-                    <td class="p-3">${roleInput}</td><td class="p-3">${fechaInput}</td><td class="p-3">${passHTML}</td>
-                    <td class="p-3 text-center">${isAdmin ? '<span class="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">Raíz</span>' : `<button type="button" onclick="window.borrarUsuario('${u.user}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded transition shadow-sm"><i class="fa-solid fa-trash-can"></i></button>`}</td>
-                </tr>`;
-            });
-        }
-
-        window.updateUserFecha = function(index, newDate) {
-            globalUsers[index].fechaEvento = newDate; saveUsers();
-            if(state.currentUser && state.currentUser.user === globalUsers[index].user) { state.config.fechaEvento = newDate; window.saveUserData(); bindUI(); }
-        }
-
-        window.updateUserRole = function(index, newRole) {
-            globalUsers[index].role = newRole; saveUsers(); showToast("Rol actualizado", "success");
-            if(state.currentUser && state.currentUser.user === globalUsers[index].user) { state.currentUser.role = newRole; sessionStorage.setItem('wf_session', JSON.stringify(state.currentUser)); aplicarRoles(); }
-        }
-
-        window.copiarAlPortapapeles = function(texto) {
-            const tempInput = document.createElement('input'); tempInput.value = texto;
-            tempInput.style.position = 'absolute'; tempInput.style.left = '-9999px';
-            document.body.appendChild(tempInput); tempInput.select();
-            try { document.execCommand('copy'); showToast("Copiado al portapapeles", "success"); } 
-            catch(err) { showToast("No se pudo copiar", "error"); }
-            document.body.removeChild(tempInput);
-        }
-
-        window.generarPasswordAleatorio = function() {
-            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$*"; let pass = "";
-            for (let i=0; i<8; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
-            document.getElementById('admin-new-pass').value = pass; window.copiarAlPortapapeles(pass);
-        }
-
-        window.resetearPassword = function(index) {
-            let pass = ""; const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            for (let i=0; i<6; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
-            if(confirm(`Nueva contraseña: ${pass}\nSe copiará y sincronizará en la nube.`)) { globalUsers[index].pass = pass; saveUsers(); window.copiarAlPortapapeles(pass); }
-        }
-
-        window.crearUsuario = function() {
-            const user = document.getElementById('admin-new-user').value.trim(), pass = document.getElementById('admin-new-pass').value.trim();
-            const role = document.getElementById('admin-new-role').value, fechaEvento = document.getElementById('admin-new-fecha').value;
-            if(!user || !pass) return showToast("Faltan datos", "error");
-            if(globalUsers.find(x => x.user.toLowerCase() === user.toLowerCase())) return showToast("El usuario ya existe", "error");
-            globalUsers.push({user, pass, role, fechaEvento}); saveUsers();
-            document.getElementById('admin-new-user').value = ''; document.getElementById('admin-new-pass').value = ''; document.getElementById('admin-new-fecha').value = ''; showToast("Usuario en Nube Creado", "success");
-        }
-
-        window.borrarUsuario = async function(username) {
-            const index = globalUsers.findIndex(u => u.user === username);
-            if(index === -1 || globalUsers[index].locked) return;
-            if(confirm(`¿Destruir de la Nube al usuario ${username} y sus invitados?`)) {
-                globalUsers.splice(index, 1); await saveUsers();
-                if(window.firebaseAuth && window.firebaseDB) {
-                    try { await window.fsDeleteDoc(window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_user_data', username)); } catch(e){}
-                }
-                showToast("Destruido de la nube", "success");
+        window.recalcCandy = function(a, n) {
+            // Si lo llaman manual, obtenemos valores actuales de la UI
+            if(a === undefined) {
+                a = parseInt(document.getElementById('stat-adultos').innerText) || 0;
+                n = parseInt(document.getElementById('stat-ninos').innerText) || 0;
             }
-        }
+
+            // Fórmula: 3 pz adulto, 4.5 pz niño
+            const totalPiezas = Math.ceil((a * 3.0) + (n * 4.5));
+            document.getElementById('candy-total').innerText = totalPiezas;
+
+            // Distribución
+            document.getElementById('candy-salados').innerText = Math.ceil(totalPiezas * 0.35) + ' pz';
+            document.getElementById('candy-chocolates').innerText = Math.ceil(totalPiezas * 0.25) + ' pz';
+            document.getElementById('candy-postres').innerText = Math.ceil(totalPiezas * 0.20) + ' pz';
+            document.getElementById('candy-snacks').innerText = Math.ceil(totalPiezas * 0.20) + ' pz';
+        };
+
+        window.recalcDrinks = function(a, n) {
+            if(a === undefined) {
+                a = parseInt(document.getElementById('stat-adultos').innerText) || 0;
+                n = parseInt(document.getElementById('stat-ninos').innerText) || 0;
+            }
+            // Destilados: 1 botella (750ml) por cada 3 adultos
+            document.getElementById('drink-botellas').innerText = Math.ceil(a / 3) + ' bts';
+            // Cervezas: 3 por adulto en promedio
+            document.getElementById('drink-cerveza').innerText = Math.ceil(a * 3) + ' pz';
+            // Refrescos y mezcladores: 1L adulto, 0.5L niño + 15% de margen
+            document.getElementById('drink-refresco').innerText = Math.ceil(((a * 1) + (n * 0.5)) * 1.15) + ' L';
+            // Hielo: 1kg por adulto
+            document.getElementById('drink-hielo').innerText = Math.ceil(a * 1) + ' kg';
+        };
+
+        window.recalcSouvenirs = function(a) {
+            if(a === undefined) {
+                a = parseInt(document.getElementById('stat-adultos').innerText) || 0;
+            }
+            // Recuerdos formales: 1 por familia/pareja (mitad de los adultos) + 10% margen
+            document.getElementById('rec-parejas').innerText = Math.ceil((a / 2) * 1.10) + ' pz';
+            // Sandalias: Suponiendo que el 50% de adultos son mujeres + 10% margen
+            document.getElementById('rec-sandalias').innerText = Math.ceil((a * 0.5) * 1.10) + ' prs';
+            // Kits anti-cruda: Usualmente para el 60% de los adultos que consumen alcohol
+            document.getElementById('rec-anticruda').innerText = Math.ceil(a * 0.6) + ' pz';
+        };
+
+        window.switchTab = function(tab) {
+            ['invitados', 'mesas', 'estadisticas'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.replace('border-pink-500', 'border-transparent');
+                document.getElementById(`tab-${t}`).classList.replace('text-pink-600', 'text-gray-500');
+            });
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.replace('border-transparent', 'border-pink-500');
+            document.getElementById(`tab-${tab}`).classList.replace('text-gray-500', 'text-pink-600');
+            
+            if(tab === 'mesas') window.renderTables();
+            if(tab === 'estadisticas') window.renderStats();
+        };
+
+        let aiTargetGuestId = null;
+
+        window.callGeminiAPI = async function(prompt, systemInstruction) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiApiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Respuesta inválida");
+                }
+            } catch (error) {
+                console.error("Gemini Error:", error);
+                throw error;
+            }
+        };
+
+        // IA WhatsApp Redactor
+        window.openAIWhatsAppModal = function(guestId) {
+            aiTargetGuestId = guestId;
+            document.getElementById('ai-whatsapp-modal').classList.replace('hidden', 'flex');
+            document.getElementById('ai-message-result').value = "";
+            document.getElementById('ai-extra-instructions').value = "";
+        };
+
+        window.generateAIMessage = async function() {
+            if(!aiTargetGuestId) return;
+            const guest = state.invitados.find(g => g.id === aiTargetGuestId);
+            if(!guest) return;
+
+            const tone = document.getElementById('ai-tone-select').value;
+            const extra = document.getElementById('ai-extra-instructions').value;
+
+            const overlay = document.getElementById('ai-loading-overlay');
+            overlay.classList.replace('hidden', 'flex');
+
+            const systemPrompt = `Eres un relacionista público experto en eventos. Redacta UN SOLO mensaje de WhatsApp para el invitado. NO incluyas saludos iniciales como "Claro, aquí tienes". Devuelve SOLO el texto final listo para copiar y pegar.`;
+            
+            let prompt = `Redacta un mensaje de seguimiento de evento para: ${guest.nombre}. Pases: ${guest.pases} (de los cuales ${guest.ninos} son niños). Estado actual: ${guest.status}. Tono: ${tone}.`;
+            if(extra) prompt += ` Instrucciones extra: ${extra}`;
+
+            try {
+                const text = await window.callGeminiAPI(prompt, systemPrompt);
+                document.getElementById('ai-message-result').value = text;
+            } catch (e) {
+                Toast.fire({icon:'error', title: 'Error de conexión IA'});
+            } finally {
+                overlay.classList.replace('flex', 'hidden');
+            }
+        };
+
+        window.sendAIWhatsApp = function() {
+            if(!aiTargetGuestId) return;
+            const guest = state.invitados.find(g => g.id === aiTargetGuestId);
+            if(!guest || !guest.telefono) {
+                Toast.fire({icon:'warning', title:'El invitado no tiene teléfono guardado'});
+                return;
+            }
+            const msg = document.getElementById('ai-message-result').value.trim();
+            if(!msg) return;
+            window.open(`https://api.whatsapp.com/send?phone=${guest.telefono}&text=${encodeURIComponent(msg)}`, '_blank');
+            document.getElementById('ai-whatsapp-modal').classList.replace('flex', 'hidden');
+        };
+
+        // IA Chatbot Planner
+        window.toggleAIChat = function() {
+            const chat = document.getElementById('ai-chat-widget');
+            const fab = document.getElementById('ai-fab');
+            if(chat.style.display === 'flex') {
+                chat.style.display = 'none';
+                fab.style.display = 'flex';
+            } else {
+                chat.style.display = 'flex';
+                fab.style.display = 'none';
+                document.getElementById('ai-chat-input').focus();
+            }
+        };
+
+        window.sendAIChat = async function() {
+            const input = document.getElementById('ai-chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const container = document.getElementById('ai-chat-messages');
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-msg user';
+            userMsg.textContent = text;
+            container.appendChild(userMsg);
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            const loading = document.createElement('div');
+            loading.className = 'ai-msg bot text-gray-500 italic';
+            loading.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Escribiendo...';
+            container.appendChild(loading);
+            container.scrollTop = container.scrollHeight;
+
+            const sys = `Eres un experto en Gestión de Invitados (TPD). Da consejos útiles, cortos y amables sobre la organización y logística de eventos.`;
+            
+            try {
+                const response = await window.callGeminiAPI(text, sys);
+                loading.remove();
+                
+                const botMsg = document.createElement('div');
+                botMsg.className = 'ai-msg bot';
+                botMsg.innerHTML = response.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                container.appendChild(botMsg);
+            } catch (e) {
+                loading.remove();
+                container.innerHTML += `<div class="ai-msg bot text-red-500">Error de red. Intenta de nuevo.</div>`;
+            }
+            container.scrollTop = container.scrollHeight;
+        };
+
     </script>
 </body>
 </html>
