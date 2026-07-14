@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Tu Pase Digital | WeddingFlow CRM Cloud - Gestión de Bodas</title>
+    <title>Tu Pase Digital | WeddingFlow CRM Cloud - Gestión de Invitados</title>
     <!-- Tailwind CSS para diseño robusto y responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para Iconos -->
@@ -73,7 +73,7 @@
         <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-purple-600">
             <div class="text-center mb-6">
                 <i class="fa-solid fa-ring text-4xl text-purple-600 mb-2"></i>
-                <h1 class="text-2xl font-bold text-gray-800">Tu Pase Digital <P></P>WeddingFlow CRM</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Tu Pase Digital | WeddingFlow CRM Cloud - Gestión de Invitados</h1>
                 <p class="text-sm text-gray-500">Gestión Profesional en la Nube</p>
             </div>
             
@@ -98,7 +98,7 @@
         <!-- Header -->
         <header class="bg-gradient-to-r from-gray-900 to-purple-900 text-white p-5 shadow-lg flex justify-between items-center flex-wrap gap-4 no-pdf">
             <div>
-                <h1 class="text-2xl font-bold"><i class="fa-solid fa-ring text-pink-300 mr-2"></i>Tu Pase Digital | WeddingFlow Cloud</h1>
+                <h1 class="text-2xl font-bold"><i class="fa-solid fa-ring text-pink-300 mr-2"></i>Tu Pase Digital | WeddingFlow CRM Cloud - Gestión de Invitados</h1>
                 <p class="text-sm text-gray-300">Gestor Multiusuario en Tiempo Real</p>
             </div>
             <div class="flex gap-3 items-center">
@@ -107,7 +107,7 @@
                     <p class="text-sm font-bold text-white mt-0.5" id="header-user-role">Cargando...</p>
                 </div>
                 <button onclick="exportBackup()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded shadow text-sm font-semibold transition hidden"><i class="fa-solid fa-download mr-1"></i> Respaldo (JSON)</button>
-                <button onclick="cerrarSesion()" class="bg-red-600 hover:bg-red-500 px-3 py-2 rounded shadow text-sm font-semibold transition" title="Cerrar Sesión"><i class="fa-solid fa-power-off"></i></button>
+                <button type="button" onclick="window.cerrarSesion()" class="bg-red-600 hover:bg-red-500 px-3 py-2 rounded shadow text-sm font-semibold transition" title="Cerrar Sesión"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </header>
 
@@ -116,10 +116,10 @@
             
             <!-- Tabs Nav (Dinámico por Rol) -->
             <nav class="flex space-x-2 border-b border-gray-300 mb-6 overflow-x-auto pb-2 no-pdf" id="main-nav">
-                <button onclick="openTab('tab-rsvp', this)" id="nav-rsvp" class="tab-btn bg-purple-700 text-white px-5 py-2 rounded-t-lg font-bold shadow-sm whitespace-nowrap transition"><i class="fa-solid fa-users mr-2"></i>1. Invitados</button>
-                <button onclick="openTab('tab-mesas', this)" id="nav-mesas" class="tab-btn bg-gray-200 text-gray-600 hover:bg-gray-300 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition"><i class="fa-solid fa-chair mr-2"></i>2. Mesas</button>
-                <button onclick="openTab('tab-stats', this)" id="nav-stats" class="tab-btn bg-gray-200 text-gray-600 hover:bg-gray-300 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition"><i class="fa-solid fa-chart-pie mr-2"></i>3. Estadísticas</button>
-                <button onclick="openTab('tab-admin', this)" id="nav-admin" class="tab-btn bg-yellow-600 text-white hover:bg-yellow-500 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition hidden"><i class="fa-solid fa-lock mr-2"></i>4. Administrador</button>
+                <button onclick="window.openTab('tab-rsvp', this)" id="nav-rsvp" class="tab-btn bg-purple-700 text-white px-5 py-2 rounded-t-lg font-bold shadow-sm whitespace-nowrap transition"><i class="fa-solid fa-users mr-2"></i>1. Invitados</button>
+                <button onclick="window.openTab('tab-mesas', this)" id="nav-mesas" class="tab-btn bg-gray-200 text-gray-600 hover:bg-gray-300 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition"><i class="fa-solid fa-chair mr-2"></i>2. Mesas</button>
+                <button onclick="window.openTab('tab-stats', this)" id="nav-stats" class="tab-btn bg-gray-200 text-gray-600 hover:bg-gray-300 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition"><i class="fa-solid fa-chart-pie mr-2"></i>3. Estadísticas</button>
+                <button onclick="window.openTab('tab-admin', this)" id="nav-admin" class="tab-btn bg-yellow-600 text-white hover:bg-yellow-500 px-5 py-2 rounded-t-lg font-bold whitespace-nowrap transition hidden"><i class="fa-solid fa-lock mr-2"></i>4. Administrador</button>
             </nav>
 
             <!-- TAB 1: INVITADOS -->
@@ -132,22 +132,26 @@
                         </h2>
                         <div class="flex items-center gap-2 bg-purple-50 p-1.5 rounded border border-purple-100 no-pdf" title="Los datos se borrarán automáticamente 1 semana después de esta fecha">
                             <label class="text-xs font-bold text-purple-700"><i class="fa-regular fa-calendar text-purple-500 mr-1"></i>Fecha del Evento:</label>
-                            <input type="date" id="cfg-fecha" class="border border-purple-200 p-1 rounded text-xs outline-none focus:ring-1 focus:ring-purple-500 bg-white text-purple-900" onchange="saveConfig()">
+                            <input type="date" id="cfg-fecha" class="border border-purple-200 p-1 rounded text-xs outline-none focus:ring-1 focus:ring-purple-500 bg-white text-purple-900" onchange="window.saveConfig()">
                         </div>
                     </div>
                     <div class="flex gap-2 no-pdf">
-                        <button onclick="exportarPDF('tab-rsvp', 'Lista_Invitados')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                        <button onclick="exportarInvitadosExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                        <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls, .csv" onchange="importarExcel(event)">
-                        <button onclick="document.getElementById('excel-upload').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-upload mr-1"></i> Subir Excel/CSV</button>
+                        <button type="button" onclick="window.exportarPDF('tab-rsvp', 'Lista_Invitados')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                        <button type="button" onclick="window.exportarInvitadosExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
+                        <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls, .csv" onchange="window.importarExcel(event)">
+                        <button type="button" onclick="document.getElementById('excel-upload').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded shadow text-xs font-bold transition flex items-center"><i class="fa-solid fa-upload mr-1"></i> Subir Excel/CSV</button>
                     </div>
                 </div>
                 
                 <!-- Add Form Manual -->
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 flex flex-wrap gap-3 items-end shadow-sm no-pdf">
-                    <div class="flex-1 min-w-[150px]">
+                    <div class="flex-1 min-w-[200px]">
                         <label class="block text-xs font-bold text-gray-600 mb-1">Nombre Completo</label>
-                        <input type="text" id="add-nombre" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                        <input type="text" id="add-nombre" placeholder="Escribe aquí para agregar manualmente..." class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div class="w-20">
+                        <label class="block text-xs font-bold text-gray-600 mb-1" title="Número de personas">Pases</label>
+                        <input type="number" id="add-pases" value="1" min="1" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-white text-center">
                     </div>
                     <div class="w-32">
                         <label class="block text-xs font-bold text-gray-600 mb-1">Grupo</label>
@@ -170,16 +174,20 @@
                             <option value="Declinado">Declinado</option>
                         </select>
                     </div>
-                    <button onclick="addGuest()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded text-sm shadow transition h-[38px]">Agregar</button>
+                    <button type="button" onclick="window.addGuest()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded text-sm shadow transition h-[38px]">Agregar</button>
                 </div>
 
-                <!-- Buscador -->
-                <div class="mb-4 no-pdf">
-                    <div class="relative">
+                <!-- Buscador y botones de borrado -->
+                <div class="mb-4 flex flex-wrap gap-2 justify-between items-center no-pdf">
+                    <div class="relative flex-1 min-w-[250px]">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
                         </div>
-                        <input type="text" id="search-guest" onkeyup="renderRSVP()" placeholder="Buscar invitado por nombre, teléfono o grupo..." class="w-full border border-gray-300 p-2.5 pl-10 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50">
+                        <input type="text" id="search-guest" onkeyup="window.renderRSVP()" placeholder="Buscar invitado por nombre, teléfono o grupo..." class="w-full border border-gray-300 p-2.5 pl-10 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="window.deleteSelectedGuests()" class="bg-red-100 text-red-600 hover:bg-red-200 border border-red-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center"><i class="fa-regular fa-square-check mr-2"></i> Borrar Selección</button>
+                        <button type="button" onclick="window.deleteAllGuests()" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center"><i class="fa-solid fa-trash-can mr-2"></i> Vaciar Lista</button>
                     </div>
                 </div>
 
@@ -187,11 +195,15 @@
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-100 text-gray-700">
                             <tr>
+                                <th class="p-3 border-b text-center no-pdf w-10">
+                                    <input type="checkbox" id="selectAllCheckbox" onclick="window.toggleSelectAll(this)" class="w-4 h-4 text-purple-600 rounded cursor-pointer">
+                                </th>
                                 <th class="p-3 border-b">Nombre</th>
+                                <th class="p-3 border-b text-center">Pases</th>
                                 <th class="p-3 border-b">Grupo</th>
                                 <th class="p-3 border-b">Teléfono</th>
                                 <th class="p-3 border-b text-center">Estado</th>
-                                <th class="p-3 border-b text-center no-pdf">Notificar RSVP</th>
+                                <th class="p-3 border-b text-center no-pdf">Notificar</th>
                                 <th class="p-3 border-b text-center no-pdf">Acción</th>
                             </tr>
                         </thead>
@@ -208,14 +220,14 @@
                     <div class="flex gap-2 flex-wrap items-center no-pdf">
                         <div class="flex items-center gap-2 bg-gray-50 p-2 rounded border mr-2">
                             <label class="text-xs font-bold text-gray-600">Mesas:</label>
-                            <input type="number" id="cfg-mesas" class="w-12 border border-gray-300 p-1 rounded text-sm text-center outline-none focus:ring-1 focus:ring-purple-500" min="1" max="100" onchange="saveConfig()">
+                            <input type="number" id="cfg-mesas" class="w-12 border border-gray-300 p-1 rounded text-sm text-center outline-none focus:ring-1 focus:ring-purple-500" min="1" max="100" onchange="window.saveConfig()">
                             <label class="text-xs font-bold text-gray-600 ml-2">Cap/Mesa:</label>
-                            <input type="number" id="cfg-capacidad" class="w-12 border border-gray-300 p-1 rounded text-sm text-center outline-none focus:ring-1 focus:ring-purple-500" min="2" max="30" onchange="saveConfig()">
+                            <input type="number" id="cfg-capacidad" class="w-12 border border-gray-300 p-1 rounded text-sm text-center outline-none focus:ring-1 focus:ring-purple-500" min="2" max="30" onchange="window.saveConfig()">
                         </div>
-                        <button onclick="exportarPDF('tab-mesas', 'Acomodo_Mesas')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                        <button onclick="exportarMesasExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                        <button onclick="autoArrangeTables()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Aleatorio</button>
-                        <button onclick="clearTables()" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-3 py-2 rounded text-xs font-bold transition">Vaciar</button>
+                        <button type="button" onclick="window.exportarPDF('tab-mesas', 'Acomodo_Mesas')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                        <button type="button" onclick="window.exportarMesasExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
+                        <button type="button" onclick="window.autoArrangeTables()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Aleatorio</button>
+                        <button type="button" onclick="window.clearTables()" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-3 py-2 rounded text-xs font-bold transition">Vaciar</button>
                     </div>
                 </div>
 
@@ -236,7 +248,7 @@
             <section id="tab-stats" class="tab-content bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 class="text-xl font-bold text-purple-800"><i class="fa-solid fa-chart-pie mr-2"></i>Estadísticas y Logística</h2>
-                    <button onclick="exportarPDF('tab-stats', 'Estadisticas_Logistica')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded shadow text-sm font-bold transition no-pdf"><i class="fa-solid fa-file-pdf mr-2"></i> Exportar a PDF</button>
+                    <button type="button" onclick="window.exportarPDF('tab-stats', 'Estadisticas_Logistica')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded shadow text-sm font-bold transition no-pdf"><i class="fa-solid fa-file-pdf mr-2"></i> Exportar a PDF</button>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -257,11 +269,11 @@
                     <div class="space-y-6">
                         <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
                             <h3 class="text-lg font-bold text-blue-800 mb-2"><i class="fa-solid fa-wine-bottle mr-2"></i>Calculadora de Bebidas</h3>
-                            <p class="text-xs text-blue-600 mb-4">Cálculo sugerido en base a invitados <b>Confirmados</b>.</p>
+                            <p class="text-xs text-blue-600 mb-4">Cálculo sugerido en base a invitados <b>Confirmados (Por pases)</b>.</p>
                             
                             <div class="flex items-center gap-4 mb-4 no-pdf">
                                 <label class="text-sm font-bold text-gray-700">Botellas por cada 10 personas:</label>
-                                <input type="number" id="calc-botellas-ratio" value="3" class="w-20 border border-blue-300 p-2 rounded outline-none text-center focus:ring-2 focus:ring-blue-500" oninput="calcularLogistica()">
+                                <input type="number" id="calc-botellas-ratio" value="3" class="w-20 border border-blue-300 p-2 rounded outline-none text-center focus:ring-2 focus:ring-blue-500" oninput="window.calcularLogistica()">
                             </div>
                             
                             <div class="bg-white p-4 rounded shadow-sm flex justify-between items-center">
@@ -289,7 +301,7 @@
                     <h2 class="text-xl font-bold text-yellow-700"><i class="fa-solid fa-users-gear mr-2"></i>Gestión de Usuarios y Roles</h2>
                     <div class="flex items-center gap-2 bg-yellow-50 p-1.5 rounded border border-yellow-100 no-pdf" title="Si los usuarios tienen una fecha de evento vencida por más de 1 semana, se borrarán en la nube automáticamente.">
                         <label class="text-xs font-bold text-yellow-700"><i class="fa-solid fa-broom text-yellow-500 mr-1"></i>Limpieza Automática Cloud:</label>
-                        <button onclick="ejecutarLimpiezaUsuarios()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow text-xs font-bold transition flex items-center">
+                        <button type="button" onclick="window.ejecutarLimpiezaUsuarios()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow text-xs font-bold transition flex items-center">
                             Forzar Limpieza
                         </button>
                     </div>
@@ -305,7 +317,7 @@
                         <label class="block text-xs font-bold text-gray-600 mb-1">Contraseña</label>
                         <div class="flex gap-2">
                             <input type="text" id="admin-new-pass" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-yellow-500">
-                            <button onclick="window.generarPasswordAleatorio()" type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 rounded text-xs font-bold transition flex-shrink-0" title="Generar Aleatoria"><i class="fa-solid fa-dice"></i></button>
+                            <button type="button" onclick="window.generarPasswordAleatorio()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 rounded text-xs font-bold transition flex-shrink-0" title="Generar Aleatoria"><i class="fa-solid fa-dice"></i></button>
                         </div>
                     </div>
                     <div class="md:col-span-3">
@@ -320,7 +332,7 @@
                                 <option value="wedding">Wedding Planner (Operativo)</option>
                                 <option value="admin">Administrador (Total)</option>
                             </select>
-                            <button onclick="window.crearUsuario()" type="button" class="bg-green-600 text-white px-4 rounded font-bold hover:bg-green-500 transition shadow flex-shrink-0">Crear Acceso</button>
+                            <button type="button" onclick="window.crearUsuario()" class="bg-green-600 text-white px-4 rounded font-bold hover:bg-green-500 transition shadow flex-shrink-0">Crear Acceso</button>
                         </div>
                     </div>
                 </div>
@@ -348,7 +360,7 @@
     <script type="module">
         // Importación de módulos oficiales de Firebase v11
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // CONFIGURACIÓN OFICIAL DEL USUARIO
@@ -379,12 +391,8 @@
 
         window.initFirebase = async () => {
             try {
-                // Validación estricta de Autenticación
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                // Validamos conexión Anónima a Firebase
+                await signInAnonymously(auth);
                 console.log("🔥 ¡Conectado a Firebase de manera segura!");
                 
                 // Ejecutamos el arranque de la app
@@ -398,7 +406,7 @@
                 const errorBox = document.getElementById('loading-box');
                 
                 let errorMsg = e.message;
-                let instructions = "Asegúrate de que estás abriendo tu archivo desde un servidor web local (ej. Live Server en VS Code) o desde GitHub Pages. La conexión a Firebase puede bloquearse si abres el archivo directamente desde tu disco duro (file://...).";
+                let instructions = "Comprueba tu conexión a internet o asegúrate de abrir el archivo desde GitHub Pages o un servidor local, no directamente desde el disco duro (file://).";
                 
                 if (e.code === 'auth/admin-restricted-operation' || e.code === 'auth/operation-not-allowed') {
                     errorMsg = "La autenticación Anónima no está habilitada en tu proyecto.";
@@ -406,11 +414,14 @@
                 } else if (e.code === 'permission-denied') {
                      errorMsg = "Permisos de Firebase denegados.";
                      instructions = "Revisa las reglas de seguridad de tu base de datos Firestore.";
+                } else if (window.location.protocol === 'file:') {
+                     errorMsg = "Bloqueo por Archivo Local (file://)";
+                     instructions = "Firebase bloquea conexiones desde el disco duro. Sube este archivo a GitHub Pages o usa un Live Server en Visual Studio Code para probarlo.";
                 }
 
                 errorBox.innerHTML = `
                     <i class="fa-solid fa-triangle-exclamation text-5xl text-red-500 mb-4"></i>
-                    <h2 class="text-xl font-bold text-gray-800">Error de Configuración</h2>
+                    <h2 class="text-xl font-bold text-gray-800">Error de Conexión</h2>
                     <p class="text-sm text-gray-600 mt-2 text-center bg-gray-50 p-2 rounded">${errorMsg}</p>
                     <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded text-left w-full">
                         <p class="text-xs font-bold text-red-800 mb-1">Pasos para solucionar:</p>
@@ -420,7 +431,7 @@
             }
         };
 
-        // Arrancamos el módulo en cuanto carga el script
+        // Arrancamos el módulo
         window.initFirebase();
     </script>
 
@@ -470,10 +481,10 @@
                     errorBox.innerHTML = `
                         <i class="fa-solid fa-database text-5xl text-orange-500 mb-4"></i>
                         <h2 class="text-xl font-bold text-gray-800">Falta la Base de Datos</h2>
-                        <p class="text-sm text-gray-600 mt-2 text-center bg-gray-50 p-2 rounded">Firestore no está inicializado en tu proyecto.</p>
+                        <p class="text-sm text-gray-600 mt-2 text-center bg-gray-50 p-2 rounded">Firestore no está inicializado en tu proyecto o las reglas de seguridad están bloqueadas.</p>
                         <div class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded text-left w-full">
                             <p class="text-xs font-bold text-orange-800 mb-1">Pasos para solucionar:</p>
-                            <p class="text-xs text-orange-700">Ve a Firebase -> Compilación -> Firestore Database (No uses Realtime Database) -> Crear base de datos -> Iniciar en modo de prueba.</p>
+                            <p class="text-xs text-orange-700">1. Ve a Firebase -> Compilación -> Firestore Database<br>2. Pestaña 'Reglas'<br>3. Cambia a: <code>allow read, write: if request.auth != null;</code><br>4. Publicar.</p>
                         </div>
                     `;
                     return;
@@ -539,7 +550,7 @@
             }, (error) => console.error("Error OnSnapshot User Data:", error));
         }
 
-        async function saveUserData() { 
+        window.saveUserData = async function() { 
             if(state.currentUser && window.firebaseAuth && window.firebaseAuth.currentUser) {
                 const dataRef = window.fsDoc(window.firebaseDB, 'artifacts', window.fsAppId, 'public', 'data', 'crm_user_data', state.currentUser.user);
                 await window.fsSetDoc(dataRef, {
@@ -645,12 +656,12 @@
                 navMesas.classList.add('hidden');
                 navStats.classList.add('hidden');
                 navAdmin.classList.add('hidden');
-                openTab('tab-rsvp', navRsvp);
+                window.openTab('tab-rsvp', navRsvp);
             } else if (role === 'wedding') {
                 navAdmin.classList.add('hidden');
-                openTab('tab-rsvp', navRsvp);
+                window.openTab('tab-rsvp', navRsvp);
             } else if (role === 'admin') {
-                openTab('tab-rsvp', navRsvp);
+                window.openTab('tab-rsvp', navRsvp);
                 renderAdminUsers();
             }
 
@@ -706,12 +717,12 @@
                 }
             }
 
-            saveUserData(); 
+            window.saveUserData(); 
             renderTables();
         }
 
         function renderAll() {
-            renderRSVP();
+            window.renderRSVP();
             renderTables();
             renderEstadisticas();
         }
@@ -721,7 +732,10 @@
             const tbody = document.getElementById('guests-tbody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            document.getElementById('guest-counter').innerText = `${state.invitados.length} Totales`;
+            
+            const totalRegistros = state.invitados.length;
+            const totalPases = state.invitados.reduce((sum, g) => sum + (parseInt(g.pases) || 1), 0);
+            document.getElementById('guest-counter').innerText = `${totalRegistros} Registros | ${totalPases} Pases`;
 
             const gruposPredefinidos = ['Familia', 'Amigos', 'Conocidos', 'Otros'];
             const searchTerm = (document.getElementById('search-guest')?.value || '').toLowerCase();
@@ -757,22 +771,28 @@
                 let stColor = g.status === 'Confirmado' ? 'text-green-700 bg-green-50' : (g.status === 'Declinado' ? 'text-red-700 bg-red-50' : 'text-yellow-700 bg-yellow-50');
 
                 tr.innerHTML = `
+                    <td class="p-2 align-middle text-center no-pdf">
+                        <input type="checkbox" class="guest-cb w-4 h-4 text-purple-600 rounded cursor-pointer" value="${g.id}">
+                    </td>
                     <td class="p-2 align-middle">
                         <div class="flex items-center gap-1 group">
-                            <input type="text" value="${g.nombre}" onchange="updateGuest(${g.id}, 'nombre', this.value)" class="font-semibold text-sm w-full bg-transparent border border-transparent hover:border-gray-300 focus:border-purple-500 focus:bg-white p-1 rounded outline-none transition" title="Editar nombre">
+                            <input type="text" value="${g.nombre}" onchange="window.updateGuest(${g.id}, 'nombre', this.value)" class="font-semibold text-sm w-full bg-transparent border border-transparent hover:border-gray-300 focus:border-purple-500 focus:bg-white p-1 rounded outline-none transition" title="Editar nombre">
                             <i class="fa-solid fa-pencil text-gray-300 group-hover:text-purple-500 text-xs transition" title="Editar"></i>
                         </div>
                     </td>
+                    <td class="p-2 align-middle text-center">
+                        <input type="number" value="${g.pases || 1}" min="1" onchange="window.updateGuest(${g.id}, 'pases', parseInt(this.value) || 1)" class="w-12 border border-gray-300 p-1.5 rounded text-xs font-bold text-center outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300" title="Modificar pases">
+                    </td>
                     <td class="p-2 align-middle">
-                        <select onchange="updateGuest(${g.id}, 'relacion', this.value)" class="w-full min-w-[110px] border border-gray-300 p-1.5 rounded text-xs outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300 bg-white">
+                        <select onchange="window.updateGuest(${g.id}, 'relacion', this.value)" class="w-full min-w-[110px] border border-gray-300 p-1.5 rounded text-xs outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300 bg-white">
                             ${opcionesGrupo}
                         </select>
                     </td>
                     <td class="p-2 align-middle">
-                        <input type="text" value="${g.telefono || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onchange="updateGuest(${g.id}, 'telefono', this.value)" placeholder="Solo números" class="w-full min-w-[110px] border border-gray-300 p-1.5 rounded text-xs font-mono outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300">
+                        <input type="text" value="${g.telefono || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onchange="window.updateGuest(${g.id}, 'telefono', this.value)" placeholder="Solo números" class="w-full min-w-[110px] border border-gray-300 p-1.5 rounded text-xs font-mono outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300">
                     </td>
                     <td class="p-2 align-middle text-center">
-                        <select onchange="updateGuest(${g.id}, 'status', this.value)" class="w-full border border-gray-300 p-1.5 rounded text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300 ${stColor}">
+                        <select onchange="window.updateGuest(${g.id}, 'status', this.value)" class="w-full border border-gray-300 p-1.5 rounded text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500 transition hover:border-purple-300 ${stColor}">
                             <option value="Pendiente" ${g.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
                             <option value="Confirmado" ${g.status === 'Confirmado' ? 'selected' : ''}>Confirmado</option>
                             <option value="Declinado" ${g.status === 'Declinado' ? 'selected' : ''}>Declinado</option>
@@ -780,7 +800,7 @@
                     </td>
                     <td class="p-2 text-center align-middle no-pdf">${waBtn}</td>
                     <td class="p-2 text-center align-middle no-pdf">
-                        <button type="button" onclick="deleteGuest(${g.id})" class="text-red-500 hover:text-red-700 p-1.5 bg-red-50 rounded transition"><i class="fa-solid fa-trash-can"></i></button>
+                        <button type="button" onclick="window.deleteGuest(${g.id})" class="text-red-500 hover:text-red-700 p-1.5 bg-red-50 rounded transition"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -791,8 +811,8 @@
         window.updateGuest = function(id, field, value) {
             const g = state.invitados.find(x => x.id === id);
             if(g) {
-                g[field] = value.trim();
-                saveUserData(); 
+                g[field] = typeof value === 'string' ? value.trim() : value;
+                window.saveUserData(); 
                 showToast(`Actualizado y sincronizado`, 'success');
             }
         }
@@ -801,17 +821,21 @@
             const nombre = document.getElementById('add-nombre').value.trim();
             if(!nombre) return showToast('El nombre es obligatorio', 'error');
             
+            const pases = parseInt(document.getElementById('add-pases').value) || 1;
+
             state.invitados.push({ 
                 id: Date.now(), 
                 nombre: nombre, 
+                pases: pases,
                 relacion: document.getElementById('add-relacion').value.trim() || 'Familia', 
                 telefono: document.getElementById('add-telefono').value.replace(/\D/g,''), 
                 status: document.getElementById('add-status').value, 
                 mesa: 0 
             });
             
-            saveUserData(); 
+            window.saveUserData(); 
             document.getElementById('add-nombre').value = ''; 
+            document.getElementById('add-pases').value = '1';
             document.getElementById('add-telefono').value = '';
             showToast('Añadido a la base de datos');
         }
@@ -819,8 +843,42 @@
         window.deleteGuest = function(id) {
             if(confirm('¿Eliminar este invitado de tu cuenta en la nube?')) { 
                 state.invitados = state.invitados.filter(g => g.id !== id); 
-                saveUserData(); 
+                window.saveUserData(); 
                 showToast('Invitado eliminado', 'success'); 
+                renderAll();
+            }
+        }
+
+        window.toggleSelectAll = function(source) {
+            const checkboxes = document.querySelectorAll('.guest-cb');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+
+        window.deleteSelectedGuests = function() {
+            const selected = document.querySelectorAll('.guest-cb:checked');
+            if(selected.length === 0) return showToast('No hay invitados seleccionados', 'warning');
+            
+            if(confirm(`¿Estás seguro de eliminar ${selected.length} invitado(s) seleccionado(s) de la nube?`)) {
+                const idsToDelete = Array.from(selected).map(cb => parseInt(cb.value));
+                state.invitados = state.invitados.filter(g => !idsToDelete.includes(g.id));
+                window.saveUserData();
+                const selectAllCb = document.getElementById('selectAllCheckbox');
+                if(selectAllCb) selectAllCb.checked = false;
+                showToast(`${idsToDelete.length} invitados eliminados`, 'success');
+                renderAll();
+            }
+        }
+
+        window.deleteAllGuests = function() {
+            if(state.invitados.length === 0) return showToast('La lista ya está vacía', 'warning');
+            
+            if(confirm('¡ATENCIÓN PELIGRO!\n\n¿Estás completamente seguro de ELIMINAR A TODOS los invitados? Esta acción borrará toda tu lista en la nube y NO se puede deshacer.')) {
+                state.invitados = [];
+                window.saveUserData();
+                const selectAllCb = document.getElementById('selectAllCheckbox');
+                if(selectAllCb) selectAllCb.checked = false;
+                showToast('Lista de invitados completamente vaciada', 'success');
+                renderAll();
             }
         }
 
@@ -841,30 +899,43 @@
                     let importedCount = 0;
                     
                     json.forEach(row => {
-                        const getVal = (keys) => {
-                            for(let key of keys) {
-                                for(let rowKey in row) {
-                                    if(rowKey.toLowerCase().trim().replace(/ /g,'') === key.toLowerCase()) {
-                                        return String(row[rowKey]).trim();
-                                    }
-                                }
-                            }
-                            return "";
-                        };
+                        // Normalizar las llaves (keys) de la fila actual para facilitar la búsqueda
+                        const normalizedRow = {};
+                        for (let key in row) {
+                            normalizedRow[key.toLowerCase().trim().replace(/ /g, '')] = row[key];
+                        }
 
-                        const nombre = getVal(["nombre", "name", "invitado", "nombres"]);
-                        if(nombre) {
-                            const relacion = getVal(["relacion", "grupo", "categoria", "lado"]) || 'Familia';
-                            const telefono = getVal(["telefono", "whatsapp", "celular", "movil"]).replace(/\D/g,'');
+                        // Buscar nombre
+                        let nombre = normalizedRow["nombre"] || normalizedRow["nombrecompleto"] || normalizedRow["invitado"] || normalizedRow["invitado(s)"] || normalizedRow["name"] || normalizedRow["nombres"];
+                        
+                        if (nombre) {
+                            // Forzar el esquema (criterio del código)
                             
-                            let rawStatus = getVal(["status", "estado", "confirmacion", "asistencia"]).toLowerCase();
+                            // 1. Pases
+                            let pasesRaw = normalizedRow["pases"] || normalizedRow["boletos"] || normalizedRow["personas"] || normalizedRow["lugares"] || normalizedRow["cantidad"];
+                            let pases = parseInt(pasesRaw) || 1;
+
+                            // 2. Grupo / Relación
+                            let relacionRaw = normalizedRow["grupo"] || normalizedRow["relacion"] || normalizedRow["categoria"] || normalizedRow["lado"];
+                            let relacion = relacionRaw ? String(relacionRaw).trim() : "Otros";
+
+                            // 3. Teléfono
+                            let telefonoRaw = normalizedRow["telefono"] || normalizedRow["whatsapp"] || normalizedRow["celular"] || normalizedRow["movil"];
+                            let telefono = telefonoRaw ? String(telefonoRaw).replace(/\D/g,'') : "";
+
+                            // 4. Estatus
+                            let statusRaw = normalizedRow["status"] || normalizedRow["estado"] || normalizedRow["confirmacion"] || normalizedRow["asistencia"];
                             let status = "Pendiente";
-                            if(rawStatus.includes("conf") || rawStatus.includes("si")) status = "Confirmado";
-                            else if(rawStatus.includes("decl") || rawStatus.includes("no") || rawStatus.includes("canc")) status = "Declinado";
+                            if (statusRaw) {
+                                let str = String(statusRaw).toLowerCase();
+                                if (str.includes("conf") || str.includes("si")) status = "Confirmado";
+                                else if (str.includes("decl") || str.includes("no") || str.includes("canc")) status = "Declinado";
+                            }
 
                             state.invitados.push({
-                                id: Date.now() + Math.floor(Math.random()*100000),
-                                nombre: nombre,
+                                id: Date.now() + Math.floor(Math.random()*100000) + importedCount,
+                                nombre: String(nombre).trim(),
+                                pases: pases,
                                 relacion: relacion,
                                 telefono: telefono,
                                 status: status,
@@ -875,12 +946,16 @@
                     });
 
                     if(importedCount > 0) { 
-                        saveUserData(); 
+                        window.saveUserData(); 
+                        renderAll(); // Forzar actualización de la tabla visualmente
                         showToast(`¡Nube: ${importedCount} invitados sincronizados!`, 'success'); 
                     } else {
                         showToast('No se detectó columna "Nombre" en el Excel.', 'warning');
                     }
-                } catch (err) { showToast('Ocurrió un error al leer el archivo Excel', 'error'); }
+                } catch (err) { 
+                    console.error(err);
+                    showToast('Ocurrió un error al leer el archivo Excel', 'error'); 
+                }
                 event.target.value = ''; 
             };
             reader.readAsArrayBuffer(file);
@@ -889,7 +964,7 @@
         window.exportarInvitadosExcel = function() {
             try {
                 if(state.invitados.length === 0) return showToast("No hay invitados", "warning");
-                const data = state.invitados.map(g => ({ "Nombre Completo": g.nombre, "Grupo": g.relacion, "WhatsApp": g.telefono, "Status": g.status }));
+                const data = state.invitados.map(g => ({ "Nombre Completo": g.nombre, "Pases": g.pases || 1, "Grupo": g.relacion, "WhatsApp": g.telefono, "Status": g.status }));
                 const ws = XLSX.utils.json_to_sheet(data);
                 const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Invitados"); 
                 XLSX.writeFile(wb, "Lista_Invitados.xlsx");
@@ -900,7 +975,7 @@
             try {
                 const conf = state.invitados.filter(g => g.status === 'Confirmado').sort((a,b) => (a.mesa===0?999:a.mesa) - (b.mesa===0?999:b.mesa));
                 if(conf.length === 0) return showToast("No hay confirmados", "warning");
-                const data = conf.map(g => ({ "Mesa": g.mesa === 0 ? "Sin Asignar" : `Mesa ${g.mesa}`, "Nombre": g.nombre, "Grupo": g.relacion }));
+                const data = conf.map(g => ({ "Mesa": g.mesa === 0 ? "Sin Asignar" : `Mesa ${g.mesa}`, "Nombre": g.nombre, "Pases": g.pases || 1, "Grupo": g.relacion }));
                 const ws = XLSX.utils.json_to_sheet(data);
                 const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Mesas"); 
                 XLSX.writeFile(wb, "Acomodo_Mesas.xlsx");
@@ -935,29 +1010,35 @@
 
             const confirmados = state.invitados.filter(g => g.status === 'Confirmado');
             const sinMesa = confirmados.filter(g => g.mesa === 0);
-            document.getElementById('unassigned-counter').innerText = sinMesa.length;
+            
+            const sinMesaPases = sinMesa.reduce((sum, g) => sum + (g.pases || 1), 0);
+            document.getElementById('unassigned-counter').innerText = `${sinMesa.length} Reg. (${sinMesaPases} Pases)`;
 
             sinMesa.forEach(g => {
                 unassignedDiv.innerHTML += `<div class="guest-draggable bg-white p-2 rounded border border-gray-200 shadow-sm flex flex-col hover:border-purple-400 hover:shadow transition group" data-id="${g.id}">
-                    <p class="text-sm font-bold text-gray-800 truncate">${g.nombre}</p>
+                    <div class="flex justify-between items-start"><p class="text-sm font-bold text-gray-800 truncate">${g.nombre}</p><span class="text-xs font-bold bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded shadow-sm">${g.pases || 1} <i class="fa-solid fa-user-group text-[9px]"></i></span></div>
                     <p class="text-[10px] font-semibold text-purple-600 uppercase truncate mt-0.5">${g.relacion}</p>
                 </div>`;
             });
 
             for(let i=1; i<=state.config.mesasTotales; i++) {
                 const enMesa = confirmados.filter(g => g.mesa === i);
-                const isFull = enMesa.length >= state.config.capacidadMesa;
-                const headerColor = isFull ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700';
+                const ocupacionPases = enMesa.reduce((sum, g) => sum + (g.pases || 1), 0);
+                const isFull = ocupacionPases >= state.config.capacidadMesa;
+                const overFill = ocupacionPases > state.config.capacidadMesa;
+                
+                const headerColor = overFill ? 'bg-red-100 text-red-800' : (isFull ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700');
+                const borderColor = overFill ? 'border-red-400 ring-2 ring-red-400' : (isFull ? 'border-purple-400 ring-1 ring-purple-400' : 'border-gray-200');
 
                 let listHTML = enMesa.map(g => `<div class="guest-draggable bg-white p-2 rounded border border-gray-200 flex justify-between items-center group shadow-sm hover:border-purple-300 transition" data-id="${g.id}">
                     <div class="overflow-hidden"><p class="text-xs font-bold text-gray-800 truncate">${g.nombre}</p><p class="text-[9px] text-gray-500 uppercase truncate">${g.relacion}</p></div>
-                    <button onclick="removeFromTable(${g.id})" class="text-red-400 hover:text-red-600 bg-red-50 px-1.5 py-0.5 rounded no-pdf" type="button"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-600">${g.pases || 1} <i class="fa-solid fa-user text-[8px]"></i></span><button onclick="window.removeFromTable(${g.id})" class="text-red-400 hover:text-red-600 bg-red-50 px-1.5 py-0.5 rounded no-pdf" type="button"><i class="fa-solid fa-xmark"></i></button></div>
                 </div>`).join('');
 
-                gridDiv.innerHTML += `<div class="bg-white rounded-lg border shadow-sm ${isFull ? 'border-purple-400 ring-1 ring-purple-400' : 'border-gray-200'} flex flex-col h-64 break-inside-avoid overflow-hidden">
+                gridDiv.innerHTML += `<div class="bg-white rounded-lg border shadow-sm ${borderColor} flex flex-col h-64 break-inside-avoid overflow-hidden">
                         <div class="px-3 py-2 flex justify-between items-center ${headerColor} border-b">
                             <span class="font-bold text-sm"><i class="fa-solid fa-utensils text-[10px] mr-1 opacity-70"></i> Mesa ${i}</span>
-                            <span class="text-xs font-bold bg-white px-2 py-0.5 rounded-full shadow-sm">${enMesa.length}/${state.config.capacidadMesa}</span>
+                            <span class="text-xs font-bold bg-white px-2 py-0.5 rounded-full shadow-sm ${overFill ? 'text-red-600' : ''}">${ocupacionPases}/${state.config.capacidadMesa}</span>
                         </div>
                         <div class="p-2 flex-1 overflow-y-auto bg-gray-50/50 table-dropzone space-y-1.5" data-mesa="${i}">${listHTML}</div>
                     </div>`;
@@ -972,15 +1053,21 @@
                 onEnd: function (evt) {
                     const guestId = parseInt(evt.item.getAttribute('data-id'));
                     const nuevaMesa = parseInt(evt.to.getAttribute('data-mesa'));
-                    if (nuevaMesa > 0) {
-                        const enMesaDestino = state.invitados.filter(g => g.status === 'Confirmado' && g.mesa === nuevaMesa);
-                        const isSameTable = (state.invitados.find(g=>g.id===guestId).mesa === nuevaMesa);
-                        if(enMesaDestino.length + (isSameTable?0:1) > state.config.capacidadMesa) { 
-                            showToast(`¡La Mesa ${nuevaMesa} ya está llena!`, 'error'); renderTables(); return; 
+                    const g = state.invitados.find(x => x.id === guestId);
+
+                    if (nuevaMesa > 0 && g) {
+                        const enMesaDestino = state.invitados.filter(x => x.status === 'Confirmado' && x.mesa === nuevaMesa);
+                        const ocupacionDestino = enMesaDestino.reduce((sum, x) => sum + (x.pases || 1), 0);
+                        const pasesMovidos = g.pases || 1;
+                        const isSameTable = (g.mesa === nuevaMesa);
+
+                        if(!isSameTable && (ocupacionDestino + pasesMovidos > state.config.capacidadMesa)) { 
+                            showToast(`¡Los ${pasesMovidos} pases superan la capacidad de la Mesa ${nuevaMesa}!`, 'error'); 
+                            renderTables(); 
+                            return; 
                         }
                     }
-                    const g = state.invitados.find(g => g.id === guestId);
-                    if(g && g.mesa !== nuevaMesa) { g.mesa = nuevaMesa; saveUserData(); }
+                    if(g && g.mesa !== nuevaMesa) { g.mesa = nuevaMesa; window.saveUserData(); }
                 }
             };
             const unassigned = document.getElementById('unassigned-list');
@@ -988,8 +1075,8 @@
             document.querySelectorAll('.table-dropzone').forEach(el => sortables.push(new Sortable(el, options)));
         }
 
-        window.removeFromTable = function(id) { const g = state.invitados.find(g => g.id === id); if(g) { g.mesa = 0; saveUserData(); } }
-        window.clearTables = function() { if(confirm('¿Vaciar TODAS las mesas de la nube?')) { state.invitados.forEach(g => g.mesa = 0); saveUserData(); } }
+        window.removeFromTable = function(id) { const g = state.invitados.find(g => g.id === id); if(g) { g.mesa = 0; window.saveUserData(); } }
+        window.clearTables = function() { if(confirm('¿Vaciar TODAS las mesas de la nube?')) { state.invitados.forEach(g => g.mesa = 0); window.saveUserData(); } }
         window.autoArrangeTables = function() {
             state.invitados.forEach(g => g.mesa = 0);
             let confs = state.invitados.filter(g => g.status === 'Confirmado');
@@ -998,19 +1085,25 @@
             
             Object.keys(grupos).forEach(nombreG => {
                 grupos[nombreG].forEach(persona => {
+                    let pases = persona.pases || 1;
                     for(let m = 1; m <= state.config.mesasTotales; m++) { 
-                        if(ocupacion[m] < state.config.capacidadMesa) { persona.mesa = m; ocupacion[m]++; break; } 
+                        if(ocupacion[m] + pases <= state.config.capacidadMesa) { 
+                            persona.mesa = m; 
+                            ocupacion[m] += pases; 
+                            break; 
+                        } 
                     }
                 });
             });
-            saveUserData(); showToast('Acomodo mágico guardado', 'success');
+            window.saveUserData(); showToast('Acomodo mágico guardado', 'success');
         }
 
         // --- STATS ---
         function renderEstadisticas() {
-            const conf = state.invitados.filter(g => g.status === 'Confirmado').length;
-            const pend = state.invitados.filter(g => g.status === 'Pendiente').length;
-            const decl = state.invitados.filter(g => g.status === 'Declinado').length;
+            // Contamos los PASES reales (cabezas) para la logística, no solo registros
+            const conf = state.invitados.filter(g => g.status === 'Confirmado').reduce((s, g) => s + (g.pases || 1), 0);
+            const pend = state.invitados.filter(g => g.status === 'Pendiente').reduce((s, g) => s + (g.pases || 1), 0);
+            const decl = state.invitados.filter(g => g.status === 'Declinado').reduce((s, g) => s + (g.pases || 1), 0);
 
             document.getElementById('stat-conf').innerText = conf;
             document.getElementById('stat-pend').innerText = pend;
@@ -1032,7 +1125,7 @@
         }
 
         window.calcularLogistica = function() {
-            const conf = state.invitados.filter(g => g.status === 'Confirmado').length;
+            const conf = state.invitados.filter(g => g.status === 'Confirmado').reduce((s, g) => s + (g.pases || 1), 0);
             document.getElementById('res-botellas').innerText = `${Math.ceil((conf * (state.config.ratioAlcohol || 3)) / 10)} Botellas`;
             document.getElementById('res-recuerdos').innerText = `${Math.ceil(conf * 1.10)} Unidades`;
         }
@@ -1072,7 +1165,7 @@
 
         window.updateUserFecha = function(index, newDate) {
             globalUsers[index].fechaEvento = newDate; saveUsers();
-            if(state.currentUser && state.currentUser.user === globalUsers[index].user) { state.config.fechaEvento = newDate; saveUserData(); bindUI(); }
+            if(state.currentUser && state.currentUser.user === globalUsers[index].user) { state.config.fechaEvento = newDate; window.saveUserData(); bindUI(); }
         }
 
         window.updateUserRole = function(index, newRole) {
