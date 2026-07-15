@@ -10,7 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- SheetJS (Excel) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- SweetAlert2 (Alertas bonitas) -->
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
@@ -38,47 +38,114 @@
 
     <div id="login-screen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 glass">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
-            <i class="fa-solid fa-rings-wedding text-5xl text-pink-500 mb-4"></i>
+            <i class="fa-solid fa-clipboard-check text-5xl text-pink-500 mb-4"></i>
             <h1 class="text-2xl font-bold mb-2">Gestión de Invitados TPD</h1>
-            <p class="text-sm text-gray-500 mb-6">Inicia sesión para gestionar tu evento</p>
+            <p class="text-sm text-gray-500 mb-6">Inicia sesión para gestionar eventos</p>
             
-            <input type="text" id="login-user" placeholder="Usuario (Ej. ana_y_luis)" class="w-full border p-3 rounded-lg mb-4 outline-none focus:ring-2 focus:ring-pink-500">
-            <input type="password" id="login-pass" placeholder="Contraseña" class="w-full border p-3 rounded-lg mb-6 outline-none focus:ring-2 focus:ring-pink-500">
+            <input type="text" id="login-user" placeholder="Usuario o Evento (Ej. graduacion_tec)" class="w-full border p-3 rounded-lg mb-4 outline-none focus:ring-2 focus:ring-pink-500">
             
-            <button onclick="window.login()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">Entrar al CRM</button>
+            <div class="relative flex items-center mb-6">
+                <input type="password" id="login-pass" placeholder="Contraseña" class="w-full border p-3 pr-10 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+                <button type="button" onclick="window.togglePasswordVisibility('login-pass', 'eye-icon-login')" class="absolute right-3 text-gray-400 hover:text-pink-600 transition" title="Mostrar/Ocultar"><i id="eye-icon-login" class="fa-solid fa-eye"></i></button>
+            </div>
+            
+            <button onclick="window.login()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">Entrar al Sistema</button>
         </div>
     </div>
 
     <div id="app-screen" class="hidden h-full flex flex-col">
+        
         <!-- Header -->
         <header class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center shrink-0">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-rings-wedding text-2xl text-pink-500"></i>
-                <h1 class="text-xl font-bold text-gray-800">Gestión de Invitados TPD</h1>
+                <i class="fa-solid fa-clipboard-check text-2xl text-pink-500"></i>
+                <h1 class="text-xl font-bold text-gray-800">Gestión de Eventos TPD</h1>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
                     <p class="text-sm font-bold" id="user-display">Usuario</p>
-                    <p class="text-xs text-green-500"><i class="fa-solid fa-cloud"></i> Nube Sincronizada</p>
+                    <p class="text-xs text-green-500"><i class="fa-solid fa-cloud"></i> Sincronizado</p>
                 </div>
                 <button onclick="window.logout()" class="text-gray-500 hover:text-red-500 transition" title="Cerrar Sesión"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
             </div>
         </header>
 
+        <!-- Banner de Suplantación de Identidad (Impersonation) -->
+        <div id="impersonation-banner" class="hidden bg-yellow-100 text-yellow-800 px-6 py-2 text-sm flex justify-between items-center shrink-0 border-b border-yellow-200">
+            <span><i class="fa-solid fa-user-secret mr-2"></i> Editando base de datos del evento: <strong id="impersonating-user-name" class="uppercase"></strong></span>
+            <button onclick="window.exitImpersonation()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1.5 rounded text-xs font-bold shadow transition"><i class="fa-solid fa-arrow-left mr-1"></i> Terminar y volver al Panel</button>
+        </div>
+
         <!-- Navegación -->
-        <nav class="bg-white border-b flex px-6 gap-6 shrink-0 text-sm font-medium overflow-x-auto">
+        <nav id="nav-tabs" class="bg-white border-b flex px-6 gap-6 shrink-0 text-sm font-medium overflow-x-auto">
+            <!-- Pestaña Admin Exclusiva -->
+            <button onclick="window.switchTab('admin')" id="tab-admin" class="hidden tab-btn py-4 border-b-2 border-transparent text-purple-600 hover:text-purple-800 font-bold"><i class="fa-solid fa-user-shield mr-2"></i>Panel de Agencia</button>
+            
+            <!-- Pestañas Normales -->
             <button onclick="window.switchTab('invitados')" id="tab-invitados" class="tab-btn py-4 border-b-2 border-pink-500 text-pink-600"><i class="fa-solid fa-users mr-2"></i>Lista de Invitados</button>
             <button onclick="window.switchTab('mesas')" id="tab-mesas" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chair mr-2"></i>Acomodo de Mesas</button>
-            <button onclick="window.switchTab('estadisticas')" id="tab-estadisticas" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chart-pie mr-2"></i>Estadísticas & Candy Bar</button>
+            <button onclick="window.switchTab('estadisticas')" id="tab-estadisticas" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chart-pie mr-2"></i>Estadísticas & Logística</button>
         </nav>
 
-        <!-- Contenido Principal -->
         <main class="flex-1 overflow-hidden p-6 bg-gray-50">
             
+            <!-- PANEL DE ADMINISTRADOR (Alta y Baja) -->
+            <section id="view-admin" class="h-full flex flex-col hidden overflow-y-auto pb-20">
+                <div class="bg-white p-6 rounded-xl shadow-sm border mb-4 shrink-0 max-w-5xl mx-auto w-full">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800"><i class="fa-solid fa-user-shield text-purple-500 mr-2"></i>Panel de Agencia TPD (Multicliente)</h2>
+                    
+                    <!-- Formulario de Alta con Roles -->
+                    <div id="admin-create-section" class="bg-purple-50 p-6 rounded-lg border border-purple-200 mb-8">
+                        <h3 class="text-lg font-bold text-purple-800 mb-4"><i class="fa-solid fa-user-plus mr-2"></i>Registrar Nuevo Evento / Staff</h3>
+                        <div class="flex flex-wrap gap-4 items-end">
+                            <div class="flex-1 min-w-[200px]">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">ID Evento/Usuario (Sin espacios)</label>
+                                <input type="text" id="admin-new-user" placeholder="Ej. graduacion_tec" class="w-full border p-3 rounded outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white">
+                            </div>
+                            <div class="flex-1 min-w-[200px]">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Contraseña de acceso</label>
+                                <div class="relative flex items-center">
+                                    <input type="password" id="admin-new-pass" placeholder="Contraseña asignada" class="w-full border p-3 pr-20 rounded outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white">
+                                    <div class="absolute right-3 flex gap-3 text-gray-400">
+                                        <button type="button" onclick="window.generateRandomPassword()" class="hover:text-purple-600 transition" title="Generar aleatoria"><i class="fa-solid fa-dice"></i></button>
+                                        <button type="button" onclick="window.togglePasswordVisibility('admin-new-pass', 'eye-icon-admin')" class="hover:text-purple-600 transition" title="Mostrar/Ocultar"><i id="eye-icon-admin" class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-[200px]">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Rol / Nivel de Acceso</label>
+                                <select id="admin-new-role" class="w-full border p-3 rounded outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white">
+                                    <option value="Cliente">Cliente (Dueño del evento)</option>
+                                    <option value="Soporte">Soporte (Editar, No Borrar)</option>
+                                    <option value="Administrador">Administrador (Control Total)</option>
+                                </select>
+                            </div>
+                            <button onclick="window.adminCreateUser()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded shadow transition">Dar de Alta</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabla de Usuarios Registrados -->
+                    <h3 class="text-lg font-bold text-gray-700 border-b pb-2 mb-4"><i class="fa-solid fa-users-gear mr-2"></i>Bases de Datos Activas</h3>
+                    <div class="bg-gray-50 border rounded-lg overflow-hidden">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="p-3">ID / Nombre del Evento</th>
+                                    <th class="p-3">Contraseña Asignada</th>
+                                    <th class="p-3">Rol / Nivel</th>
+                                    <th class="p-3 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-list" class="divide-y divide-gray-200 bg-white">
+                                <!-- JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <section id="view-invitados" class="h-full flex flex-col">
-                <!-- Controles Superiores -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 shrink-0 flex flex-wrap items-center gap-4 justify-between">
-                    <!-- Agregar Manualmente -->
                     <div class="flex-1 min-w-[300px] flex gap-2">
                         <input type="text" id="new-guest-name" placeholder="Escribe aquí para agregar manualmente..." class="flex-1 border p-2 text-sm rounded outline-none focus:ring-2 focus:ring-pink-500">
                         <input type="number" id="new-guest-passes" placeholder="Pases" min="1" value="1" class="w-20 border p-2 text-sm rounded outline-none" title="Pases Totales">
@@ -86,17 +153,12 @@
                         <button onclick="window.addGuestManual()" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded text-sm font-bold shadow transition"><i class="fa-solid fa-plus"></i></button>
                     </div>
 
-                    <!-- Botones de Acción Múltiple y Excel -->
                     <div class="flex items-center gap-2">
                         <input type="text" id="search-guest" onkeyup="window.renderGuests()" placeholder="🔍 Buscar..." class="border p-2 text-sm rounded w-40 outline-none">
-                        
-                        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- Separador -->
-                        
+                        <div class="h-6 w-px bg-gray-300 mx-1"></div>
                         <button onclick="window.deleteSelected()" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded text-sm font-bold transition" title="Borrar Seleccionados"><i class="fa-solid fa-trash-can"></i> Selección</button>
                         <button onclick="window.deleteAllGuests()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm font-bold transition shadow" title="Vaciar toda la lista"><i class="fa-solid fa-dumpster-fire"></i> Vaciar</button>
-
-                        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- Separador -->
-
+                        <div class="h-6 w-px bg-gray-300 mx-1"></div>
                         <label class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold shadow cursor-pointer transition">
                             <i class="fa-solid fa-file-excel mr-1"></i> Subir Excel
                             <input type="file" id="excel-file" class="hidden" accept=".xlsx, .xls, .csv" onchange="window.importExcel(event)">
@@ -104,7 +166,6 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Invitados -->
                 <div class="bg-white border rounded-xl shadow-sm flex-1 table-container relative">
                     <table class="w-full text-left text-sm whitespace-nowrap">
                         <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10 shadow-sm">
@@ -120,7 +181,7 @@
                             </tr>
                         </thead>
                         <tbody id="guests-tbody" class="divide-y divide-gray-200">
-                            <!-- Filas generadas por JS -->
+                            <!-- JS -->
                         </tbody>
                     </table>
                 </div>
@@ -128,16 +189,15 @@
 
             <section id="view-mesas" class="h-full flex flex-col hidden">
                 <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 shrink-0 flex justify-between items-center">
-                    <h2 class="font-bold text-lg text-gray-700"><i class="fa-solid fa-chair text-pink-500 mr-2"></i> Logística de Mesas</h2>
+                    <h2 class="font-bold text-lg text-gray-700"><i class="fa-solid fa-chair text-pink-500 mr-2"></i> Logística de Acomodo</h2>
                     <div class="flex gap-2 items-center">
-                        <span class="text-sm text-gray-500">Capacidad por mesa:</span>
+                        <span class="text-sm text-gray-500">Capacidad por mesa o zona:</span>
                         <input type="number" id="table-capacity" value="10" min="1" onchange="window.updateTableCapacity(this.value)" class="border p-1 w-16 text-center rounded text-sm outline-none">
-                        <button onclick="window.addTable()" class="bg-pink-500 text-white px-3 py-1.5 rounded text-sm font-bold shadow ml-2"><i class="fa-solid fa-plus mr-1"></i>Mesa</button>
+                        <button onclick="window.addTable()" class="bg-pink-500 text-white px-3 py-1.5 rounded text-sm font-bold shadow ml-2"><i class="fa-solid fa-plus mr-1"></i>Agregar</button>
                     </div>
                 </div>
                 
                 <div class="flex-1 flex gap-4 overflow-hidden">
-                    <!-- Sin Asignar -->
                     <div class="w-1/3 bg-white border rounded-xl shadow-sm flex flex-col">
                         <div class="p-3 border-b bg-gray-50 font-bold text-gray-700 flex justify-between">
                             <span>Sin Asignar</span>
@@ -146,132 +206,66 @@
                         <div id="unassigned-list" class="flex-1 p-2 overflow-y-auto space-y-2 bg-gray-50"></div>
                     </div>
                     
-                    <!-- Mesas -->
                     <div id="tables-container" class="flex-1 overflow-x-auto flex gap-4 pb-2">
-                        <!-- Generadas por JS -->
+                        <!-- JS -->
                     </div>
                 </div>
             </section>
 
             <section id="view-estadisticas" class="h-full overflow-y-auto hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
                     
-                    <!-- Resumen General -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border">
                         <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie text-pink-500 mr-2"></i>Asistencia General</h3>
                         <div class="flex justify-around text-center mb-6">
-                            <div>
-                                <p class="text-3xl font-bold text-gray-800" id="stat-total">0</p>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide">Pases Totales</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl font-bold text-green-500" id="stat-conf">0</p>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide">Confirmados</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl font-bold text-red-500" id="stat-decl">0</p>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide">Declinados</p>
-                            </div>
+                            <div><p class="text-3xl font-bold text-gray-800" id="stat-total">0</p><p class="text-xs text-gray-500 uppercase tracking-wide">Totales</p></div>
+                            <div><p class="text-3xl font-bold text-green-500" id="stat-conf">0</p><p class="text-xs text-gray-500 uppercase tracking-wide">Confirmados</p></div>
+                            <div><p class="text-3xl font-bold text-red-500" id="stat-decl">0</p><p class="text-xs text-gray-500 uppercase tracking-wide">Declinados</p></div>
                         </div>
-                        
-                        <!-- Censo -->
                         <div class="bg-gray-50 p-4 rounded-lg border flex justify-around text-center">
-                            <div>
-                                <p class="text-xl font-bold text-blue-600" id="stat-adultos">0</p>
-                                <p class="text-xs text-gray-500"><i class="fa-solid fa-user"></i> Adultos</p>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-purple-600" id="stat-ninos">0</p>
-                                <p class="text-xs text-gray-500"><i class="fa-solid fa-child"></i> Niños</p>
-                            </div>
+                            <div><p class="text-xl font-bold text-blue-600" id="stat-adultos">0</p><p class="text-xs text-gray-500"><i class="fa-solid fa-user"></i> Adultos</p></div>
+                            <div><p class="text-xl font-bold text-purple-600" id="stat-ninos">0</p><p class="text-xs text-gray-500"><i class="fa-solid fa-child"></i> Niños</p></div>
                         </div>
                     </div>
 
                     <div class="bg-yellow-50 p-6 rounded-xl shadow-sm border border-yellow-200">
                         <div class="flex justify-between items-center border-b border-yellow-200 pb-2 mb-4">
-                            <h3 class="text-lg font-bold text-yellow-800"><i class="fa-solid fa-candy-cane text-yellow-500 mr-2"></i>Calculadora Mesa de Dulces</h3>
-                            <button onclick="window.recalcCandy()" class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded hover:bg-yellow-300"><i class="fa-solid fa-sync"></i> Recalcular</button>
+                            <h3 class="text-lg font-bold text-yellow-800"><i class="fa-solid fa-candy-cane text-yellow-500 mr-2"></i>Mesa de Dulces / Candy Bar</h3>
+                            <button onclick="window.recalcCandy()" class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded hover:bg-yellow-300"><i class="fa-solid fa-sync"></i></button>
                         </div>
-                        
-                        <p class="text-xs text-yellow-700 mb-4">Cálculo basado en <strong>3.0 dulces/adulto</strong> y <strong>4.5 dulces/niño</strong> (Solo confirmados).</p>
-                        
+                        <p class="text-xs text-yellow-700 mb-4">Basado en <strong>3 pz/adulto</strong> y <strong>4.5 pz/niño</strong> (Confirmados).</p>
                         <div class="text-center mb-6">
                             <p class="text-4xl font-extrabold text-yellow-600" id="candy-total">0</p>
-                            <p class="text-sm font-bold text-yellow-800 uppercase tracking-wide">Piezas Totales Recomendadas</p>
+                            <p class="text-sm font-bold text-yellow-800 uppercase tracking-wide">Piezas Recomendadas</p>
                         </div>
-
                         <div class="space-y-3">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-pepper-hot text-red-500 mr-1 w-4"></i> Salados / Picosos (35%)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-salados">0 pz</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-cookie-bite text-amber-700 mr-1 w-4"></i> Chocolates / Dulces (25%)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-chocolates">0 pz</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-cupcake text-pink-500 mr-1 w-4"></i> Postres Gourmet (20%)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-postres">0 pz</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-popcorn text-yellow-500 mr-1 w-4"></i> Snacks a Granel (20%)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-snacks">0 pz</span>
-                            </div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Salados / Picosos (35%)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-salados">0 pz</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Chocolates / Dulces (25%)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-chocolates">0 pz</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Postres Gourmet (20%)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-postres">0 pz</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Snacks a Granel (20%)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="candy-snacks">0 pz</span></div>
                         </div>
                     </div>
 
-                    <!-- Calculadora de Bebidas -->
                     <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200">
-                        <div class="flex justify-between items-center border-b border-blue-200 pb-2 mb-4">
-                            <h3 class="text-lg font-bold text-blue-800"><i class="fa-solid fa-wine-glass-empty text-blue-500 mr-2"></i>Calculadora de Bebidas</h3>
-                        </div>
-                        
-                        <p class="text-xs text-blue-700 mb-4">Basado en consumo estándar de bodas (Solo adultos confirmados).</p>
-
+                        <h3 class="text-lg font-bold text-blue-800 border-b border-blue-200 pb-2 mb-4"><i class="fa-solid fa-wine-glass-empty text-blue-500 mr-2"></i>Calculadora de Bebidas</h3>
+                        <p class="text-xs text-blue-700 mb-4">Consumo estándar de eventos.</p>
                         <div class="space-y-3">
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 botella por cada 3 adultos">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-bottle-droplet text-indigo-500 mr-1 w-4"></i> Destilados (Botellas 750ml)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-botellas">0 bts</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 3 cervezas por adulto">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-beer-mug-empty text-yellow-600 mr-1 w-4"></i> Cervezas (Piezas)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-cerveza">0 pz</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1L adulto, 0.5L niño + 15% margen">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-glass-water text-cyan-500 mr-1 w-4"></i> Refrescos / Mezcladores</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-refresco">0 L</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1kg de hielo por adulto">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-cubes text-blue-400 mr-1 w-4"></i> Hielo en cubos</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-hielo">0 kg</span>
-                            </div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Destilados (1 bot x cada 3 ad)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-botellas">0 bts</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Cervezas (3 pz x adulto)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-cerveza">0 pz</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Refrescos (1L ad, 0.5L n) + 15%</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-refresco">0 L</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Hielo (1kg x adulto)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="drink-hielo">0 kg</span></div>
                         </div>
                     </div>
 
-                    <!-- Calculadora de Recuerdos -->
                     <div class="bg-purple-50 p-6 rounded-xl shadow-sm border border-purple-200">
-                        <div class="flex justify-between items-center border-b border-purple-200 pb-2 mb-4">
-                            <h3 class="text-lg font-bold text-purple-800"><i class="fa-solid fa-gift text-purple-500 mr-2"></i>Calculadora de Recuerdos</h3>
-                        </div>
-                        
-                        <p class="text-xs text-purple-700 mb-4">Cálculos con margen de seguridad del 10% incluido.</p>
-
+                        <h3 class="text-lg font-bold text-purple-800 border-b border-purple-200 pb-2 mb-4"><i class="fa-solid fa-gift text-purple-500 mr-2"></i>Recuerdos y Amenidades</h3>
+                        <p class="text-xs text-purple-700 mb-4">Cálculos con margen de seguridad del 10%.</p>
                         <div class="space-y-3">
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 recuerdo formal por familia/pareja">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-box-open text-purple-500 mr-1 w-4"></i> Recuerdos (Por Familia)</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-parejas">0 pz</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 par por cada mujer adulta estimada">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-shoe-prints text-pink-500 mr-1 w-4"></i> Sandalias / Pantuflas</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-sandalias">0 prs</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm" title="Fórmula: 1 kit para el 60% de los adultos">
-                                <span class="font-semibold text-gray-700"><i class="fa-solid fa-kit-medical text-red-500 mr-1 w-4"></i> Kits Anti-cruda</span>
-                                <span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-anticruda">0 pz</span>
-                            </div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Recuerdos Formales (Parejas)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-parejas">0 pz</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Pantuflas/Sandalias (Mujeres)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-sandalias">0 prs</span></div>
+                            <div class="flex justify-between text-sm"><span class="font-semibold text-gray-700">Kits Anti-cruda (60% adultos)</span><span class="font-bold bg-white px-2 py-1 rounded border shadow-sm" id="rec-anticruda">0 pz</span></div>
                         </div>
                     </div>
-
                 </div>
             </section>
         </main>
@@ -283,74 +277,52 @@
                 <h3 class="text-lg font-bold text-purple-800"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-pink-500"></i>Redactor de Mensajes IA</h3>
                 <button onclick="document.getElementById('ai-whatsapp-modal').classList.replace('flex', 'hidden')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button>
             </div>
-            
-            <p class="text-xs text-gray-600 mb-4">La Inteligencia Artificial redactará un mensaje personalizado para pedir confirmación o dar seguimiento.</p>
-            
+            <p class="text-xs text-gray-600 mb-4">La IA redactará un mensaje personalizado para pedir confirmación o seguimiento.</p>
             <div class="mb-4">
                 <label class="block text-xs font-bold text-gray-700 mb-1">Tono del mensaje:</label>
-                <select id="ai-tone-select" class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="formal y muy elegante">Formal y Elegante</option>
+                <select id="ai-tone-select" class="w-full border p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="formal y elegante">Formal y Elegante</option>
                     <option value="emocionante y muy amigable">Emocionante y Amigable</option>
                     <option value="casual y directo">Casual y Directo</option>
                     <option value="divertido con emojis">Divertido con Emojis</option>
                 </select>
             </div>
-
             <div class="mb-4">
                 <label class="block text-xs font-bold text-gray-700 mb-1">Instrucciones extra (Opcional):</label>
-                <input type="text" id="ai-extra-instructions" placeholder="Ej. Recuerda mencionar que no se admiten niños..." class="w-full border border-gray-300 p-2 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500">
+                <input type="text" id="ai-extra-instructions" placeholder="Ej. Recuerda mencionar el código de vestimenta..." class="w-full border p-2 rounded text-sm outline-none">
             </div>
-
-            <button type="button" onclick="window.generateAIMessage()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm shadow transition mb-4 flex items-center justify-center">
-                <i class="fa-solid fa-robot mr-2"></i> Generar Mensaje
-            </button>
-
+            <button type="button" onclick="window.generateAIMessage()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm shadow mb-4">Generar Mensaje</button>
             <div class="relative flex-1 min-h-[150px] flex flex-col">
-                <label class="block text-xs font-bold text-gray-700 mb-1">Mensaje final (puedes editarlo):</label>
-                <textarea id="ai-message-result" class="w-full border border-gray-300 p-3 rounded text-sm outline-none focus:ring-2 focus:ring-purple-500 flex-1 resize-none bg-gray-50" placeholder="El mensaje generado aparecerá aquí..."></textarea>
-                
-                <!-- Loading overlay -->
+                <textarea id="ai-message-result" class="w-full border p-3 rounded text-sm outline-none flex-1 resize-none bg-gray-50" placeholder="El resultado aparecerá aquí..."></textarea>
                 <div id="ai-loading-overlay" class="absolute inset-0 bg-white bg-opacity-80 hidden flex-col items-center justify-center z-10 rounded">
-                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-purple-600 mb-2"></i>
-                    <span class="text-xs font-bold text-gray-600">Pensando...</span>
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-purple-600 mb-2"></i><span class="text-xs font-bold">Pensando...</span>
                 </div>
             </div>
-
-            <div class="mt-4">
-                <button type="button" onclick="window.sendAIWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded text-sm shadow transition flex items-center justify-center">
-                    <i class="fa-brands fa-whatsapp text-lg mr-2"></i> Enviar por WhatsApp
-                </button>
-            </div>
+            <button type="button" onclick="window.sendAIWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded text-sm shadow mt-4"><i class="fa-brands fa-whatsapp mr-2"></i> Enviar WhatsApp</button>
         </div>
     </div>
-
-    <div id="ai-fab" onclick="window.toggleAIChat()" title="Pregúntale a tu Planner IA">
-        <i class="fa-solid fa-robot"></i>
-    </div>
-
+    
+    <div id="ai-fab" onclick="window.toggleAIChat()" title="Planner IA"><i class="fa-solid fa-robot"></i></div>
     <div id="ai-chat-widget">
-        <div id="ai-chat-header" onclick="window.toggleAIChat()">
-            <span><i class="fa-solid fa-clipboard-user mr-2"></i> TPD Planner IA</span>
-            <i class="fa-solid fa-chevron-down"></i>
-        </div>
-        <div id="ai-chat-messages">
-            <div class="ai-msg bot">¡Hola! Soy tu asistente de Inteligencia Artificial para la gestión de invitados. ¿Tienes dudas sobre logística o manejo de tu evento? ¡Pregúntame!</div>
-        </div>
+        <div id="ai-chat-header" onclick="window.toggleAIChat()"><span><i class="fa-solid fa-clipboard-user mr-2"></i> TPD Planner IA</span><i class="fa-solid fa-chevron-down"></i></div>
+        <div id="ai-chat-messages"><div class="ai-msg bot">¡Hola! Soy tu asistente de Inteligencia Artificial. ¿Tienes dudas de logística de eventos? ¡Pregúntame!</div></div>
         <div id="ai-chat-input-container">
-            <input type="text" id="ai-chat-input" placeholder="Pregúntale a la IA..." onkeypress="if(event.key === 'Enter') window.sendAIChat()">
+            <input type="text" id="ai-chat-input" placeholder="Pregunta algo..." onkeypress="if(event.key === 'Enter') window.sendAIChat()">
             <button id="ai-chat-send" onclick="window.sendAIChat()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script type="module">
-        // Firebase Imports
+        // =========================================================================
+        // CONTRASEÑA MAESTRA DEL SISTEMA (ADMINISTRADOR RAÍZ)
+        // =========================================================================
+        const MASTER_PASSWORD = "T0k3r3k3r"; // <--- Cambia esto por tu contraseña segura
+        // =========================================================================
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ==========================================
-        // CONFIGURACIÓN FIREBASE (Tus llaves exactas)
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCaRKtx54HYM5jXB2DgtZeLciUNB7Inqjw",
             authDomain: "wedding-crm-6853f.firebaseapp.com",
@@ -366,147 +338,318 @@
         const db = getFirestore(app);
         const appId = 'weddingflow-crm-app';
         let unsubscribe = null;
-        const geminiApiKey = ""; // Automático por Canvas
+        const geminiApiKey = "";
 
-        // Estado Global
-        let currentUser = null;
+        // =========================================================================
+        // GESTIÓN DE ESTADO Y ROLES
+        // =========================================================================
+        let currentUser = null;         // A qué DB estamos guardando
+        let originalAdminUser = null;   // Quién se logueó realmente
+        let isAdmin = false;
+        let userRole = 'Cliente';
+
         let state = {
             invitados: [],
             mesas: [ { id: 1, nombre: "Mesa 1" }, { id: 2, nombre: "Mesa 2" } ],
             config: { capacidadMesa: 10, fechaEvento: "" }
         };
 
-        // UI Helpers
-        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
 
-        // ==========================================
-        // AUTENTICACIÓN Y SINCRONIZACIÓN
-        // ==========================================
-        window.login = async function() {
-            const user = document.getElementById('login-user').value.trim().toLowerCase();
-            const pass = document.getElementById('login-pass').value.trim();
-
-            if (!user || !pass) {
-                Swal.fire('Error', 'Escribe usuario y contraseña', 'error');
-                return;
-            }
-
-            Swal.fire({ title: 'Conectando al servidor...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-            try {
-                await signInAnonymously(auth);
-                currentUser = user;
-                document.getElementById('user-display').innerText = user;
-
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', user);
-                
-                // Suscripción en Tiempo Real
-                unsubscribe = onSnapshot(docRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        // Validar contraseñas básicas (Simulación)
-                        if (data.pass !== pass && pass !== 'admin') {
-                            Swal.fire('Error', 'Contraseña incorrecta', 'error');
-                            unsubscribe();
-                            return;
-                        }
-                        state.invitados = data.invitados || [];
-                        state.mesas = data.mesas || state.mesas;
-                        state.config = data.config || state.config;
-                        
-                        window.renderAll();
-                        Swal.close();
-                        
-                        document.getElementById('login-screen').classList.add('hidden');
-                        document.getElementById('app-screen').classList.remove('hidden');
-                    } else {
-                        // Crear nuevo usuario si no existe (y pasa 'admin' o decide crearlo)
-                        Swal.fire({
-                            title: 'Usuario Nuevo',
-                            text: `¿Crear base de datos para ${user}?`,
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'Sí, crear'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                setDoc(docRef, { pass: pass, invitados: [], mesas: state.mesas, config: state.config });
-                            } else {
-                                unsubscribe();
-                            }
-                        });
-                    }
-                }, (error) => {
-                    console.error("Firestore error:", error);
-                    Swal.fire('Error', 'No se pudo conectar a la base de datos. Revisa tus permisos de Firebase.', 'error');
-                });
-
-            } catch (error) {
-                console.error(error);
-                Swal.fire('Error', 'Fallo de autenticación. Verifica que Auth Anónimo esté activo en Firebase.', 'error');
+        window.togglePasswordVisibility = function(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         };
 
+        window.generateRandomPassword = function() {
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$&*";
+            let pass = "";
+            for (let i = 0; i < 8; i++) {
+                pass += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const passInput = document.getElementById('admin-new-pass');
+            passInput.value = pass;
+            passInput.type = "text"; // Mostrarla automáticamente al generarla
+            document.getElementById('eye-icon-admin').classList.replace('fa-eye', 'fa-eye-slash');
+            Toast.fire({ icon: 'info', title: 'Contraseña generada' });
+        };
+
+        window.login = async function() {
+            const user = document.getElementById('login-user').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const pass = document.getElementById('login-pass').value.trim();
+
+            if (!user || !pass) { Swal.fire('Error', 'Escribe usuario y contraseña', 'error'); return; }
+
+            Swal.fire({ title: 'Autenticando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                await signInAnonymously(auth);
+
+                // 1. Acceso de Root Admin por código maestro
+                if (user === 'admin' && pass === MASTER_PASSWORD) {
+                    setupAdminEnvironment('admin', 'Administrador');
+                    return;
+                }
+
+                // 2. Acceso regular a la base de datos
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', user);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    if (data.pass !== pass && pass !== MASTER_PASSWORD) {
+                        Swal.fire('Error', 'Contraseña incorrecta', 'error'); return;
+                    }
+                    
+                    const role = data.role || 'Cliente';
+                    
+                    // Derivar entorno según el rol
+                    if (role === 'Administrador' || role === 'Soporte') {
+                        setupAdminEnvironment(user, role);
+                    } else {
+                        setupClientEnvironment(user, role);
+                    }
+                } else {
+                    Swal.fire('Error', `El evento "${user}" no existe. Pide al administrador que lo dé de alta.`, 'error');
+                }
+
+            } catch (error) {
+                Swal.fire('Error', 'Fallo de conexión. Verifica tu internet.', 'error');
+            }
+        };
+
+        // Entorno para Administradores y Soporte (Ven el panel general)
+        function setupAdminEnvironment(username, role) {
+            isAdmin = true;
+            userRole = role;
+            originalAdminUser = username;
+            currentUser = username;
+            
+            const badgeIcon = role === 'Administrador' ? 'fa-crown text-yellow-500' : 'fa-user-shield text-purple-500';
+            document.getElementById('user-display').innerHTML = `<i class="fa-solid ${badgeIcon} mr-1"></i> ${username} (${role})`;
+            
+            // Ocultar creación/borrado si es solo Soporte
+            if (role === 'Soporte') document.getElementById('admin-create-section').classList.add('hidden');
+            else document.getElementById('admin-create-section').classList.remove('hidden');
+            
+            document.getElementById('tab-admin').classList.remove('hidden');
+            document.getElementById('tab-invitados').classList.add('hidden');
+            document.getElementById('tab-mesas').classList.add('hidden');
+            document.getElementById('tab-estadisticas').classList.add('hidden');
+            
+            window.loadAdminPanel();
+            
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            window.switchTab('admin');
+            Swal.close();
+        }
+
+        // Entorno para Clientes (Solo ven sus datos)
+        function setupClientEnvironment(username, role) {
+            isAdmin = false;
+            userRole = role;
+            originalAdminUser = null;
+            currentUser = username;
+            
+            document.getElementById('user-display').innerHTML = `<i class="fa-solid fa-user text-pink-500 mr-1"></i> ${username} (${role})`;
+            
+            document.getElementById('tab-admin').classList.add('hidden');
+            document.getElementById('tab-invitados').classList.remove('hidden');
+            document.getElementById('tab-mesas').classList.remove('hidden');
+            document.getElementById('tab-estadisticas').classList.remove('hidden');
+            
+            // Suscripción a sus propios datos
+            subscribeToUser(username);
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            window.switchTab('invitados');
+            Swal.close();
+        }
+
+        window.loadAdminPanel = async function() {
+            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'crm_user_data');
+            const snapshot = await getDocs(usersRef);
+            const adminList = document.getElementById('admin-users-list');
+            adminList.innerHTML = '';
+            
+            let count = 0;
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const eventName = docSnap.id;
+                
+                // Ocultar contraseñas si es Soporte
+                const pass = userRole === 'Soporte' ? '********' : (data.pass || 'Sin contraseña');
+                const roleName = data.role || 'Cliente';
+                
+                const roleBadge = roleName === 'Administrador' ? 'bg-purple-100 text-purple-800' :
+                                  roleName === 'Soporte' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-gray-700">${eventName}</td>
+                    <td class="p-3 text-gray-500 font-mono text-xs">${pass}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${roleBadge}">${roleName}</span></td>
+                    <td class="p-3 text-right">
+                        <button onclick="window.impersonateUser('${eventName}')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded text-xs font-bold transition shadow-sm mr-2" title="Entrar a este evento"><i class="fa-solid fa-pen-to-square mr-1"></i> Editar Lista</button>
+                        ${userRole === 'Administrador' ? `<button onclick="window.adminDeleteUser('${eventName}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded text-xs font-bold transition shadow-sm" title="Eliminar evento"><i class="fa-solid fa-trash-can mr-1"></i> Baja</button>` : ''}
+                    </td>
+                `;
+                adminList.appendChild(tr);
+                count++;
+            });
+            
+            if(count === 0) adminList.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">No hay eventos en la base de datos.</td></tr>';
+        };
+
+        window.adminCreateUser = async function() {
+            if (userRole !== 'Administrador') return;
+            const u = document.getElementById('admin-new-user').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const p = document.getElementById('admin-new-pass').value.trim();
+            const r = document.getElementById('admin-new-role').value;
+            
+            if(!u || !p) { Toast.fire({ icon: 'warning', title: 'Llena usuario y contraseña' }); return; }
+            
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', u);
+            await setDoc(docRef, { 
+                pass: p, 
+                role: r,
+                invitados: [], 
+                mesas: [ { id: 1, nombre: "Mesa Principal" } ], 
+                config: { capacidadMesa: 10, fechaEvento: "" } 
+            });
+            
+            document.getElementById('admin-new-user').value = '';
+            
+            // Limpiar y ocultar la contraseña de nuevo
+            const passInput = document.getElementById('admin-new-pass');
+            passInput.value = '';
+            passInput.type = 'password';
+            document.getElementById('eye-icon-admin').classList.replace('fa-eye-slash', 'fa-eye');
+            
+            window.loadAdminPanel();
+            Toast.fire({ icon: 'success', title: 'Evento/Usuario creado exitosamente' });
+        };
+
+        window.adminDeleteUser = async function(userId) {
+            if (userRole !== 'Administrador') return;
+            Swal.fire({
+                title: '¿Dar de baja evento?',
+                text: `Se eliminará toda la base de datos de "${userId}". Esta acción NO se puede deshacer.`,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar evento'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', userId));
+                    window.loadAdminPanel();
+                    Toast.fire({ icon: 'success', title: 'Evento eliminado' });
+                }
+            });
+        };
+
+        window.impersonateUser = function(userId) {
+            Swal.fire({ title: `Conectando con ${userId}...`, didOpen: () => Swal.showLoading() });
+            
+            currentUser = userId; // Cambiamos el objetivo para que saveToCloud guarde donde debe
+            
+            // Modificar UI
+            document.getElementById('impersonating-user-name').innerText = userId;
+            document.getElementById('impersonation-banner').classList.remove('hidden');
+            
+            document.getElementById('tab-invitados').classList.remove('hidden');
+            document.getElementById('tab-mesas').classList.remove('hidden');
+            document.getElementById('tab-estadisticas').classList.remove('hidden');
+            document.getElementById('tab-admin').classList.add('hidden');
+            
+            subscribeToUser(userId);
+            window.switchTab('invitados');
+            Swal.close();
+        };
+
+        window.exitImpersonation = function() {
+            if(unsubscribe) unsubscribe();
+            
+            currentUser = originalAdminUser; // Volvemos a ser admin/soporte
+            state.invitados = []; state.mesas = []; // Limpiamos memoria
+            
+            document.getElementById('impersonation-banner').classList.add('hidden');
+            
+            document.getElementById('tab-invitados').classList.add('hidden');
+            document.getElementById('tab-mesas').classList.add('hidden');
+            document.getElementById('tab-estadisticas').classList.add('hidden');
+            document.getElementById('tab-admin').classList.remove('hidden');
+            
+            window.loadAdminPanel();
+            window.switchTab('admin');
+        };
+
+        function subscribeToUser(userId) {
+            if(unsubscribe) unsubscribe();
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', userId);
+            unsubscribe = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    state.invitados = data.invitados || [];
+                    state.mesas = data.mesas || [{id:1, nombre:"Mesa Principal"}];
+                    state.config = data.config || {};
+                    window.renderAll();
+                } else if(originalAdminUser) {
+                    Swal.fire('Atención', 'Este evento fue eliminado', 'warning');
+                    window.exitImpersonation();
+                }
+            });
+        }
+
         window.logout = function() {
             if(unsubscribe) unsubscribe();
-            currentUser = null;
+            currentUser = null; originalAdminUser = null; isAdmin = false; userRole = 'Cliente';
             document.getElementById('login-user').value = '';
             document.getElementById('login-pass').value = '';
+            document.getElementById('impersonation-banner').classList.add('hidden');
             document.getElementById('app-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
         };
 
         window.saveToCloud = async function() {
-            if (!currentUser) return;
+            if (!currentUser) return; // Puede ser el cliente original, o el admin impersonando al cliente
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm_user_data', currentUser);
             try {
                 await setDoc(docRef, { invitados: state.invitados, mesas: state.mesas, config: state.config }, { merge: true });
             } catch (error) {
-                console.error("Error guardando:", error);
-                Toast.fire({ icon: 'error', title: 'Error al sincronizar' });
+                Toast.fire({ icon: 'error', title: 'Error al sincronizar en la nube' });
             }
         };
 
-        // ==========================================
-        // GESTIÓN DE INVITADOS (CRUD)
-        // ==========================================
         window.renderAll = function() {
-            window.renderGuests();
-            window.renderTables();
-            window.renderStats();
+            window.renderGuests(); window.renderTables(); window.renderStats();
         };
 
         window.addGuestManual = function() {
             const nameInput = document.getElementById('new-guest-name');
             const passesInput = document.getElementById('new-guest-passes');
             const kidsInput = document.getElementById('new-guest-kids');
-            
             const name = nameInput.value.trim();
             const pases = parseInt(passesInput.value) || 1;
             const ninos = parseInt(kidsInput.value) || 0;
 
             if (!name) return;
-            if (ninos > pases) {
-                Toast.fire({icon: 'warning', title: 'Los niños no pueden superar los pases totales'});
-                return;
-            }
+            if (ninos > pases) { Toast.fire({icon: 'warning', title: 'Niños no pueden superar pases'}); return; }
 
-            state.invitados.push({
-                id: Date.now(),
-                nombre: name,
-                grupo: 'Otros',
-                telefono: '',
-                pases: pases,
-                ninos: ninos,
-                status: 'Pendiente',
-                mesa: 0 // 0 = sin asignar
-            });
-
-            nameInput.value = '';
-            passesInput.value = '1';
-            kidsInput.value = '0';
-            
-            window.saveToCloud();
-            Toast.fire({ icon: 'success', title: 'Agregado correctamente' });
+            state.invitados.push({ id: Date.now(), nombre: name, grupo: 'Otros', telefono: '', pases: pases, ninos: ninos, status: 'Pendiente', mesa: 0 });
+            nameInput.value = ''; passesInput.value = '1'; kidsInput.value = '0';
+            window.saveToCloud(); Toast.fire({ icon: 'success', title: 'Agregado' });
         };
 
         window.renderGuests = function() {
@@ -517,10 +660,7 @@
             state.invitados.filter(g => g.nombre.toLowerCase().includes(term)).forEach(g => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-pink-50 transition';
-                
                 let stColor = g.status === 'Confirmado' ? 'text-green-700 bg-green-50' : (g.status === 'Declinado' ? 'text-red-700 bg-red-50' : 'text-yellow-700 bg-yellow-50');
-                
-                // Mensaje Clásico de WhatsApp (Sin Link externo)
                 const msg = `¡Hola ${g.nombre}! Te escribimos para pedir tu confirmación para nuestro evento. Tienes ${g.pases} pase(s) reservado(s). ¿Nos acompañas?`;
                 
                 tr.innerHTML = `
@@ -539,8 +679,8 @@
                     </td>
                     <td class="p-2 border-b text-center">
                         <div class="flex justify-center gap-1">
-                            <a href="https://api.whatsapp.com/send?phone=${g.telefono}&text=${encodeURIComponent(msg)}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1.5 rounded shadow text-xs transition" title="WhatsApp Estándar"><i class="fa-brands fa-whatsapp"></i></a>
-                            <button onclick="window.openAIWhatsAppModal(${g.id})" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-2 py-1.5 rounded shadow text-xs transition" title="Redactar con IA"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                            <a href="https://api.whatsapp.com/send?phone=${g.telefono}&text=${encodeURIComponent(msg)}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1.5 rounded shadow text-xs transition"><i class="fa-brands fa-whatsapp"></i></a>
+                            <button onclick="window.openAIWhatsAppModal(${g.id})" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 text-white px-2 py-1.5 rounded shadow text-xs transition"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
                         </div>
                     </td>
                 `;
@@ -551,120 +691,68 @@
         window.updateGuest = function(id, field, value) {
             const guest = state.invitados.find(g => g.id === id);
             if (!guest) return;
-            
             if (field === 'pases' || field === 'ninos') {
                 value = parseInt(value) || 0;
                 if(field === 'pases' && value < 1) value = 1;
                 guest[field] = value;
-                
-                // Regla: Niños no pueden ser más que pases
                 if (guest.ninos > guest.pases) guest.ninos = guest.pases;
-            } else {
-                guest[field] = value;
-            }
+            } else { guest[field] = value; }
             window.saveToCloud();
         };
 
-        window.toggleSelectAll = function(source) {
-            const checkboxes = document.querySelectorAll('.guest-cb');
-            checkboxes.forEach(cb => cb.checked = source.checked);
-        };
+        window.toggleSelectAll = function(source) { document.querySelectorAll('.guest-cb').forEach(cb => cb.checked = source.checked); };
 
         window.deleteSelected = function() {
             const selected = Array.from(document.querySelectorAll('.guest-cb:checked')).map(cb => parseInt(cb.value));
-            if (selected.length === 0) {
-                Toast.fire({ icon: 'info', title: 'Selecciona al menos un invitado' });
-                return;
-            }
-            
-            Swal.fire({
-                title: '¿Borrar seleccionados?',
-                text: `Se eliminarán ${selected.length} invitados.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Sí, borrar'
-            }).then((result) => {
+            if (selected.length === 0) return Toast.fire({ icon: 'info', title: 'Selecciona invitados' });
+            Swal.fire({ title: '¿Borrar seleccionados?', text: `Se eliminarán ${selected.length} invitados.`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Sí, borrar' }).then((result) => {
                 if (result.isConfirmed) {
                     state.invitados = state.invitados.filter(g => !selected.includes(g.id));
                     document.getElementById('selectAll').checked = false;
-                    window.saveToCloud();
-                    Toast.fire({ icon: 'success', title: 'Borrados' });
+                    window.saveToCloud(); Toast.fire({ icon: 'success', title: 'Borrados' });
                 }
             });
         };
 
         window.deleteAllGuests = function() {
             if (state.invitados.length === 0) return;
-            Swal.fire({
-                title: '¡PELIGRO!',
-                text: '¿Estás seguro de vaciar TODA la lista? Esta acción no se puede deshacer.',
-                icon: 'error',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'VACIAR TODO'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    state.invitados = [];
-                    window.saveToCloud();
-                    Toast.fire({ icon: 'success', title: 'Lista vaciada' });
-                }
+            Swal.fire({ title: '¡PELIGRO!', text: '¿Vaciar TODA la lista?', icon: 'error', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'VACIAR TODO' }).then((result) => {
+                if (result.isConfirmed) { state.invitados = []; window.saveToCloud(); Toast.fire({ icon: 'success', title: 'Lista vaciada' }); }
             });
         };
 
         window.importExcel = function(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {defval: ""});
                     if (json.length === 0) throw new Error("Archivo vacío");
 
                     let count = 0;
                     json.forEach(row => {
-                        // Escáner Inteligente de Columnas (ignora mayúsculas y espacios)
                         let nombre = ""; let tel = ""; let grupo = "Otros"; let pases = 1; let ninos = 0;
-                        
                         for (const key in row) {
                             const cleanKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                             const val = row[key];
-
                             if (!nombre && (cleanKey.includes('nombre') || cleanKey.includes('invitado') || cleanKey.includes('name'))) nombre = String(val).trim();
                             else if (cleanKey.includes('telefono') || cleanKey.includes('celular') || cleanKey.includes('phone')) tel = String(val).replace(/[^0-9+]/g, '');
                             else if (cleanKey.includes('grupo') || cleanKey.includes('familia') || cleanKey.includes('relacion')) grupo = String(val).trim();
-                            else if (cleanKey.includes('pase') || cleanKey.includes('boleto') || cleanKey.includes('persona') || cleanKey.includes('lugar')) pases = parseInt(val) || 1;
+                            else if (cleanKey.includes('pase') || cleanKey.includes('boleto') || cleanKey.includes('persona') || cleanKey.includes('lugar') || cleanKey.includes('asiento')) pases = parseInt(val) || 1;
                             else if (cleanKey.includes('nino') || cleanKey.includes('menor') || cleanKey.includes('kid')) ninos = parseInt(val) || 0;
                         }
-
                         if (nombre) {
                             if(ninos > pases) ninos = pases;
-                            state.invitados.push({
-                                id: Date.now() + count,
-                                nombre: nombre,
-                                telefono: tel,
-                                grupo: grupo || 'Otros',
-                                pases: Math.max(1, pases),
-                                ninos: Math.max(0, ninos),
-                                status: 'Pendiente',
-                                mesa: 0
-                            });
+                            state.invitados.push({ id: Date.now() + count, nombre: nombre, telefono: tel, grupo: grupo || 'Otros', pases: Math.max(1, pases), ninos: Math.max(0, ninos), status: 'Pendiente', mesa: 0 });
                             count++;
                         }
                     });
-
-                    window.saveToCloud();
-                    event.target.value = ''; // Reset input
-                    Swal.fire('Éxito', `Se importaron ${count} invitados correctamente`, 'success');
-                } catch (error) {
-                    Swal.fire('Error', 'No se pudo leer el archivo Excel. Asegúrate de que sea formato .xlsx', 'error');
-                }
+                    window.saveToCloud(); event.target.value = '';
+                    Swal.fire('Éxito', `Se importaron ${count} invitados`, 'success');
+                } catch (error) { Swal.fire('Error', 'Archivo no válido', 'error'); }
             };
             reader.readAsArrayBuffer(file);
         };
@@ -672,28 +760,22 @@
         window.renderTables = function() {
             const cap = state.config.capacidadMesa || 10;
             document.getElementById('table-capacity').value = cap;
-
             const cont = document.getElementById('tables-container');
             const unassignedList = document.getElementById('unassigned-list');
             cont.innerHTML = ''; unassignedList.innerHTML = '';
-
             let pasesSinAsignar = 0;
 
-            // Renderizar Sin Asignar
             state.invitados.filter(g => g.mesa === 0).forEach(g => {
                 pasesSinAsignar += g.pases;
                 unassignedList.appendChild(createGuestCard(g));
             });
             document.getElementById('unassigned-count').innerText = `${pasesSinAsignar} pases`;
 
-            // Renderizar Mesas
             state.mesas.forEach(mesa => {
                 const mesaDiv = document.createElement('div');
                 mesaDiv.className = 'min-w-[250px] w-[250px] bg-white border rounded-xl shadow-sm flex flex-col shrink-0';
-                
                 const guestsInTable = state.invitados.filter(g => g.mesa === mesa.id);
                 let pasesMesa = guestsInTable.reduce((sum, g) => sum + g.pases, 0);
-                
                 let colorColor = pasesMesa > cap ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
 
                 mesaDiv.innerHTML = `
@@ -706,7 +788,6 @@
                     </div>
                     <div class="flex-1 p-2 overflow-y-auto space-y-2 bg-gray-50 min-h-[150px]"></div>
                 `;
-
                 const listContainer = mesaDiv.querySelector('.flex-1');
                 guestsInTable.forEach(g => listContainer.appendChild(createGuestCard(g)));
                 cont.appendChild(mesaDiv);
@@ -729,45 +810,21 @@
             return card;
         }
 
-        window.assignTable = function(guestId, tableId) {
-            const guest = state.invitados.find(g => g.id === guestId);
-            if(guest) guest.mesa = parseInt(tableId);
-            window.saveToCloud();
-        };
-
-        window.addTable = function() {
-            const id = Date.now();
-            state.mesas.push({ id: id, nombre: `Mesa ${state.mesas.length + 1}` });
-            window.saveToCloud();
-        };
-
-        window.deleteTable = function(id) {
-            state.mesas = state.mesas.filter(m => m.id !== id);
-            state.invitados.forEach(g => { if(g.mesa === id) g.mesa = 0; });
-            window.saveToCloud();
-        };
-
-        window.updateTableCapacity = function(val) {
-            state.config.capacidadMesa = parseInt(val) || 10;
-            window.saveToCloud();
-        };
+        window.assignTable = function(gId, tId) { const guest = state.invitados.find(g => g.id === gId); if(guest) guest.mesa = parseInt(tId); window.saveToCloud(); };
+        window.addTable = function() { state.mesas.push({ id: Date.now(), nombre: `Mesa ${state.mesas.length + 1}` }); window.saveToCloud(); };
+        window.deleteTable = function(id) { state.mesas = state.mesas.filter(m => m.id !== id); state.invitados.forEach(g => { if(g.mesa === id) g.mesa = 0; }); window.saveToCloud(); };
+        window.updateTableCapacity = function(val) { state.config.capacidadMesa = parseInt(val) || 10; window.saveToCloud(); };
 
         window.renderStats = function() {
             let totalPases = 0, conf = 0, decl = 0, ninosTotales = 0;
-
             state.invitados.forEach(g => {
                 totalPases += g.pases;
-                if(g.status === 'Confirmado') {
-                    conf += g.pases;
-                    ninosTotales += g.ninos; // Solo contamos niños confirmados para el banquete
-                }
+                if(g.status === 'Confirmado') { conf += g.pases; ninosTotales += g.ninos; }
                 if(g.status === 'Declinado') decl += g.pases;
             });
-
             document.getElementById('stat-total').innerText = totalPases;
             document.getElementById('stat-conf').innerText = conf;
             document.getElementById('stat-decl').innerText = decl;
-
             const adultos = Math.max(0, conf - ninosTotales);
             document.getElementById('stat-adultos').innerText = adultos;
             document.getElementById('stat-ninos').innerText = ninosTotales;
@@ -778,189 +835,128 @@
         };
 
         window.recalcCandy = function(a, n) {
-            // Si lo llaman manual, obtenemos valores actuales de la UI
-            if(a === undefined) {
-                a = parseInt(document.getElementById('stat-adultos').innerText) || 0;
-                n = parseInt(document.getElementById('stat-ninos').innerText) || 0;
-            }
-
-            // Fórmula: 3 pz adulto, 4.5 pz niño
-            const totalPiezas = Math.ceil((a * 3.0) + (n * 4.5));
-            document.getElementById('candy-total').innerText = totalPiezas;
-
-            // Distribución
-            document.getElementById('candy-salados').innerText = Math.ceil(totalPiezas * 0.35) + ' pz';
-            document.getElementById('candy-chocolates').innerText = Math.ceil(totalPiezas * 0.25) + ' pz';
-            document.getElementById('candy-postres').innerText = Math.ceil(totalPiezas * 0.20) + ' pz';
-            document.getElementById('candy-snacks').innerText = Math.ceil(totalPiezas * 0.20) + ' pz';
+            if(a === undefined) { a = parseInt(document.getElementById('stat-adultos').innerText)||0; n = parseInt(document.getElementById('stat-ninos').innerText)||0; }
+            const total = Math.ceil((a * 3.0) + (n * 4.5));
+            document.getElementById('candy-total').innerText = total;
+            document.getElementById('candy-salados').innerText = Math.ceil(total * 0.35) + ' pz';
+            document.getElementById('candy-chocolates').innerText = Math.ceil(total * 0.25) + ' pz';
+            document.getElementById('candy-postres').innerText = Math.ceil(total * 0.20) + ' pz';
+            document.getElementById('candy-snacks').innerText = Math.ceil(total * 0.20) + ' pz';
         };
 
         window.recalcDrinks = function(a, n) {
-            if(a === undefined) {
-                a = parseInt(document.getElementById('stat-adultos').innerText) || 0;
-                n = parseInt(document.getElementById('stat-ninos').innerText) || 0;
-            }
-            // Destilados: 1 botella (750ml) por cada 3 adultos
+            if(a === undefined) { a = parseInt(document.getElementById('stat-adultos').innerText)||0; n = parseInt(document.getElementById('stat-ninos').innerText)||0; }
             document.getElementById('drink-botellas').innerText = Math.ceil(a / 3) + ' bts';
-            // Cervezas: 3 por adulto en promedio
             document.getElementById('drink-cerveza').innerText = Math.ceil(a * 3) + ' pz';
-            // Refrescos y mezcladores: 1L adulto, 0.5L niño + 15% de margen
             document.getElementById('drink-refresco').innerText = Math.ceil(((a * 1) + (n * 0.5)) * 1.15) + ' L';
-            // Hielo: 1kg por adulto
             document.getElementById('drink-hielo').innerText = Math.ceil(a * 1) + ' kg';
         };
 
         window.recalcSouvenirs = function(a) {
-            if(a === undefined) {
-                a = parseInt(document.getElementById('stat-adultos').innerText) || 0;
-            }
-            // Recuerdos formales: 1 por familia/pareja (mitad de los adultos) + 10% margen
+            if(a === undefined) { a = parseInt(document.getElementById('stat-adultos').innerText)||0; }
             document.getElementById('rec-parejas').innerText = Math.ceil((a / 2) * 1.10) + ' pz';
-            // Sandalias: Suponiendo que el 50% de adultos son mujeres + 10% margen
             document.getElementById('rec-sandalias').innerText = Math.ceil((a * 0.5) * 1.10) + ' prs';
-            // Kits anti-cruda: Usualmente para el 60% de los adultos que consumen alcohol
             document.getElementById('rec-anticruda').innerText = Math.ceil(a * 0.6) + ' pz';
         };
 
         window.switchTab = function(tab) {
-            ['invitados', 'mesas', 'estadisticas'].forEach(t => {
-                document.getElementById(`view-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.replace('border-pink-500', 'border-transparent');
-                document.getElementById(`tab-${t}`).classList.replace('text-pink-600', 'text-gray-500');
+            ['invitados', 'mesas', 'estadisticas', 'admin'].forEach(t => {
+                const el = document.getElementById(`view-${t}`);
+                if(el) el.classList.add('hidden');
+                const btn = document.getElementById(`tab-${t}`);
+                if(btn) { 
+                    btn.classList.replace('border-pink-500', 'border-transparent'); 
+                    btn.classList.replace('text-pink-600', 'text-gray-500'); 
+                    btn.classList.replace('border-purple-500', 'border-transparent'); 
+                    btn.classList.replace('text-purple-600', 'text-gray-500'); 
+                }
             });
             document.getElementById(`view-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.replace('border-transparent', 'border-pink-500');
-            document.getElementById(`tab-${tab}`).classList.replace('text-gray-500', 'text-pink-600');
-            
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if(activeBtn) { 
+                if(tab === 'admin') {
+                    activeBtn.classList.replace('border-transparent', 'border-purple-500'); 
+                    activeBtn.classList.replace('text-gray-500', 'text-purple-600'); 
+                } else {
+                    activeBtn.classList.replace('border-transparent', 'border-pink-500'); 
+                    activeBtn.classList.replace('text-gray-500', 'text-pink-600'); 
+                }
+            }
             if(tab === 'mesas') window.renderTables();
             if(tab === 'estadisticas') window.renderStats();
+            if(tab === 'admin') window.loadAdminPanel();
         };
-
-        let aiTargetGuestId = null;
 
         window.callGeminiAPI = async function(prompt, systemInstruction) {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiApiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] }
-            };
-
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemInstruction }] } }) });
                 const result = await response.json();
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
-                    return result.candidates[0].content.parts[0].text;
-                } else {
-                    throw new Error("Respuesta inválida");
-                }
-            } catch (error) {
-                console.error("Gemini Error:", error);
-                throw error;
-            }
+                if (result.candidates && result.candidates[0].content) return result.candidates[0].content.parts[0].text;
+                throw new Error("API falló");
+            } catch (error) { throw error; }
         };
 
-        // IA WhatsApp Redactor
         window.openAIWhatsAppModal = function(guestId) {
             aiTargetGuestId = guestId;
             document.getElementById('ai-whatsapp-modal').classList.replace('hidden', 'flex');
-            document.getElementById('ai-message-result').value = "";
-            document.getElementById('ai-extra-instructions').value = "";
+            document.getElementById('ai-message-result').value = ""; document.getElementById('ai-extra-instructions').value = "";
         };
 
         window.generateAIMessage = async function() {
             if(!aiTargetGuestId) return;
             const guest = state.invitados.find(g => g.id === aiTargetGuestId);
             if(!guest) return;
-
             const tone = document.getElementById('ai-tone-select').value;
             const extra = document.getElementById('ai-extra-instructions').value;
+            document.getElementById('ai-loading-overlay').classList.replace('hidden', 'flex');
 
-            const overlay = document.getElementById('ai-loading-overlay');
-            overlay.classList.replace('hidden', 'flex');
-
-            const systemPrompt = `Eres un relacionista público experto en eventos. Redacta UN SOLO mensaje de WhatsApp para el invitado. NO incluyas saludos iniciales como "Claro, aquí tienes". Devuelve SOLO el texto final listo para copiar y pegar.`;
-            
-            let prompt = `Redacta un mensaje de seguimiento de evento para: ${guest.nombre}. Pases: ${guest.pases} (de los cuales ${guest.ninos} son niños). Estado actual: ${guest.status}. Tono: ${tone}.`;
-            if(extra) prompt += ` Instrucciones extra: ${extra}`;
+            const sys = `Eres relacionista público experto en eventos. Redacta UN SOLO mensaje de WhatsApp. Devuelve SOLO el texto.`;
+            let prompt = `Mensaje para: ${guest.nombre}. Pases: ${guest.pases} (${guest.ninos} niños). Estado: ${guest.status}. Tono: ${tone}. Extra: ${extra}`;
 
             try {
-                const text = await window.callGeminiAPI(prompt, systemPrompt);
-                document.getElementById('ai-message-result').value = text;
-            } catch (e) {
-                Toast.fire({icon:'error', title: 'Error de conexión IA'});
-            } finally {
-                overlay.classList.replace('flex', 'hidden');
-            }
+                document.getElementById('ai-message-result').value = await window.callGeminiAPI(prompt, sys);
+            } catch (e) { Toast.fire({icon:'error', title: 'Error de IA'}); } finally { document.getElementById('ai-loading-overlay').classList.replace('flex', 'hidden'); }
         };
 
         window.sendAIWhatsApp = function() {
             if(!aiTargetGuestId) return;
             const guest = state.invitados.find(g => g.id === aiTargetGuestId);
-            if(!guest || !guest.telefono) {
-                Toast.fire({icon:'warning', title:'El invitado no tiene teléfono guardado'});
-                return;
-            }
+            if(!guest || !guest.telefono) return Toast.fire({icon:'warning', title:'Sin teléfono'});
             const msg = document.getElementById('ai-message-result').value.trim();
             if(!msg) return;
             window.open(`https://api.whatsapp.com/send?phone=${guest.telefono}&text=${encodeURIComponent(msg)}`, '_blank');
             document.getElementById('ai-whatsapp-modal').classList.replace('flex', 'hidden');
         };
 
-        // IA Chatbot Planner
         window.toggleAIChat = function() {
-            const chat = document.getElementById('ai-chat-widget');
-            const fab = document.getElementById('ai-fab');
-            if(chat.style.display === 'flex') {
-                chat.style.display = 'none';
-                fab.style.display = 'flex';
-            } else {
-                chat.style.display = 'flex';
-                fab.style.display = 'none';
-                document.getElementById('ai-chat-input').focus();
-            }
+            const chat = document.getElementById('ai-chat-widget'), fab = document.getElementById('ai-fab');
+            if(chat.style.display === 'flex') { chat.style.display = 'none'; fab.style.display = 'flex'; } 
+            else { chat.style.display = 'flex'; fab.style.display = 'none'; document.getElementById('ai-chat-input').focus(); }
         };
 
         window.sendAIChat = async function() {
             const input = document.getElementById('ai-chat-input');
-            const text = input.value.trim();
-            if(!text) return;
-
+            const text = input.value.trim(); if(!text) return;
             const container = document.getElementById('ai-chat-messages');
             
-            const userMsg = document.createElement('div');
-            userMsg.className = 'ai-msg user';
-            userMsg.textContent = text;
-            container.appendChild(userMsg);
-            input.value = '';
+            container.innerHTML += `<div class="ai-msg user">${text}</div>`;
+            input.value = ''; container.scrollTop = container.scrollHeight;
+            const loadingId = 'load-' + Date.now();
+            container.innerHTML += `<div id="${loadingId}" class="ai-msg bot text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Escribiendo...</div>`;
             container.scrollTop = container.scrollHeight;
 
-            const loading = document.createElement('div');
-            loading.className = 'ai-msg bot text-gray-500 italic';
-            loading.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Escribiendo...';
-            container.appendChild(loading);
-            container.scrollTop = container.scrollHeight;
-
-            const sys = `Eres un experto en Gestión de Invitados (TPD). Da consejos útiles, cortos y amables sobre la organización y logística de eventos.`;
-            
+            const sys = `Eres un experto en Gestión de Eventos TPD. Da consejos útiles sobre organización.`;
             try {
-                const response = await window.callGeminiAPI(text, sys);
-                loading.remove();
-                
-                const botMsg = document.createElement('div');
-                botMsg.className = 'ai-msg bot';
-                botMsg.innerHTML = response.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-                container.appendChild(botMsg);
+                const res = await window.callGeminiAPI(text, sys);
+                document.getElementById(loadingId).remove();
+                container.innerHTML += `<div class="ai-msg bot">${res.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>')}</div>`;
             } catch (e) {
-                loading.remove();
+                document.getElementById(loadingId).remove();
                 container.innerHTML += `<div class="ai-msg bot text-red-500">Error de red. Intenta de nuevo.</div>`;
             }
             container.scrollTop = container.scrollHeight;
         };
-
     </script>
 </body>
 </html>
