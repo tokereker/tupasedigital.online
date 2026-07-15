@@ -666,7 +666,15 @@
                 tr.innerHTML = `
                     <td class="p-2 text-center border-b"><input type="checkbox" class="guest-cb w-4 h-4 cursor-pointer" value="${g.id}"></td>
                     <td class="p-2 border-b font-medium">${g.nombre}</td>
-                    <td class="p-2 border-b"><input type="text" value="${g.grupo}" onchange="window.updateGuest(${g.id}, 'grupo', this.value)" class="border p-1 text-xs rounded w-20 outline-none"></td>
+                    <td class="p-2 border-b">
+                        <select onchange="window.updateGuest(${g.id}, 'grupo', this.value)" class="border p-1 text-xs rounded w-24 outline-none cursor-pointer">
+                            <option value="Familia" ${g.grupo==='Familia'?'selected':''}>Familia</option>
+                            <option value="Amigos" ${g.grupo==='Amigos'?'selected':''}>Amigos</option>
+                            <option value="Trabajo" ${g.grupo==='Trabajo'?'selected':''}>Trabajo</option>
+                            <option value="Conocidos" ${g.grupo==='Conocidos'?'selected':''}>Conocidos</option>
+                            <option value="Otros" ${(!['Familia', 'Amigos', 'Trabajo', 'Conocidos'].includes(g.grupo))?'selected':''}>Otros</option>
+                        </select>
+                    </td>
                     <td class="p-2 border-b"><input type="text" value="${g.telefono}" onchange="window.updateGuest(${g.id}, 'telefono', this.value)" placeholder="10 dígitos" class="border p-1 text-xs rounded w-24 outline-none"></td>
                     <td class="p-2 border-b text-center"><input type="number" min="1" value="${g.pases}" onchange="window.updateGuest(${g.id}, 'pases', this.value)" class="border p-1 text-xs rounded w-16 text-center outline-none"></td>
                     <td class="p-2 border-b text-center"><input type="number" min="0" max="${g.pases}" value="${g.ninos}" onchange="window.updateGuest(${g.id}, 'ninos', this.value)" class="border p-1 text-xs rounded w-16 text-center outline-none"></td>
