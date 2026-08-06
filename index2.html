@@ -121,22 +121,6 @@
                 <p id="texto-estado" class="text-xl fuente-elegante font-bold"></p>
                 <button onclick="document.getElementById('zona-rsvp').classList.remove('hidden'); document.getElementById('zona-estado-actual').classList.add('hidden');" class="text-[10px] text-slate-400 hover:text-tema uppercase tracking-widest font-bold mt-4 underline transition"><i class="fa-solid fa-pen mr-1"></i> Modificar respuesta</button>
             </div>
-			
-			<!-- ZONA DE EXTRAS (Menú y Música) -->
-            <div id="zona-extras" class="hidden mt-6 space-y-4">
-                <!-- Contenedor Menú -->
-                <div id="contenedor-menu" class="hidden bg-slate-50/80 p-5 rounded-2xl border border-slate-200 shadow-sm text-left">
-                    <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider text-center"><i class="fa-solid fa-utensils text-tema mr-1"></i> Menú del Evento</p>
-                    <p id="texto-menu" class="text-sm text-slate-700 whitespace-pre-line font-medium text-center leading-relaxed"></p>
-                </div>
-                
-                <!-- Contenedor DJ -->
-                <div id="contenedor-dj" class="hidden">
-                    <a id="link-dj" href="#" target="_blank" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
-                        <i class="fa-brands fa-spotify text-emerald-400 text-xl"></i> Pide una Canción
-                    </a>
-                </div>
-            </div>
             
             <p class="text-[10px] text-slate-400 mt-8 pt-4 border-t border-slate-200/50 font-medium">Desarrollado por TPD Enterprise ©</p>
         </div>
@@ -256,32 +240,44 @@
                 }
             }
 
-            // NUEVA LÓGICA: Mostrar Menú y DJ Link si el organizador los configuró
-            if (baseDeDatosCompleta.config) {
-                let mostrarExtras = false;
-                
-                // Validar y mostrar Menú
-                if (baseDeDatosCompleta.config.menuText && baseDeDatosCompleta.config.menuText.trim() !== '') {
-                    document.getElementById('texto-menu').innerText = baseDeDatosCompleta.config.menuText;
-                    document.getElementById('contenedor-menu').classList.remove('hidden');
-                    mostrarExtras = true;
-                }
-                
-                // Validar y mostrar DJ Link
-                if (baseDeDatosCompleta.config.djLink && baseDeDatosCompleta.config.djLink.trim() !== '') {
-                    document.getElementById('link-dj').href = baseDeDatosCompleta.config.djLink;
-                    document.getElementById('contenedor-dj').classList.remove('hidden');
-                    mostrarExtras = true;
-                }
-                
-                // Si hay al menos uno, hacemos visible la zona completa
-                if (mostrarExtras) {
-                    document.getElementById('zona-extras').classList.remove('hidden');
-                }
-            }
-
             document.getElementById('pantalla-carga').classList.add('hidden');
             document.getElementById('pantalla-invitacion').classList.remove('hidden');
+        }
+
+        window.confirmarAsistencia = async function(nuevoEstado) {
+            Swal.fire({
+                title: 'Actualizando tu respuesta...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            invitadoActual.status = nuevoEstado;
+            const index = baseDeDatosCompleta.invitados.findIndex(g => g.id === guestId);
+            baseDeDatosCompleta.invitados[index] = invitadoActual;
+
+            try {
+                const docRef = doc(db, 'artifacts', 'weddingflow', 'users', userId);
+                await setDoc(docRef, { invitados: baseDeDatosCompleta.invitados }, { merge: true });
+
+                const colorAlert = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim();
+
+                Swal.fire({
+                    icon: nuevoEstado === 'Confirmado' ? 'success' : 'info',
+                    title: nuevoEstado === 'Confirmado' ? '¡Confirmado!' : 'Enterado',
+                    text: nuevoEstado === 'Confirmado' ? 'Hemos avisado a los organizadores. ¡Te esperamos!' : 'Qué lástima, los organizadores ya fueron notificados.',
+                    confirmButtonColor: colorAlert || '#C3A343'
+                }).then(() => {
+                    pintarDatos();
+                });
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Hubo un problema de conexión. Intenta de nuevo.', 'error');
+            }
+        };
+
+        function mostrarError() {
+            document.getElementById('pantalla-carga').classList.add('hidden');
+            document.getElementById('pantalla-error').classList.remove('hidden');
         }
     </script>
 </body>
