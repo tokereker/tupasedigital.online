@@ -1,6 +1,6 @@
 // src/guest.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
 const firebaseConfig = {
@@ -83,6 +83,25 @@ window.llamarMesero = async function(peticion) {
         confirmButtonColor: eventDataConfig?.themeColor || '#10b981'
     });
 
+    if (mesa) {
+        try {
+            // Guardamos la alerta en la subcolección de Firebase
+            const alertasRef = collection(db, 'artifacts', 'weddingflow', 'users', currentEventId, 'alertas');
+            await addDoc(alertasRef, {
+                mesa: mesa,
+                peticion: peticion,
+                hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                timestamp: Date.now(),
+                estado: 'pendiente' // Para que luego tu staff la pueda marcar como atendida
+            });
+            
+            Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la Mesa ${mesa}.`, timer: 4000, showConfirmButton: false });
+        } catch (error) {
+            console.error("Error al enviar notificación:", error);
+            Swal.fire({ icon: 'error', title: 'Ups...', text: 'No pudimos enviar el aviso por problemas de conexión. Por favor llama al mesero directamente.' });
+        }
+    }
+};
     if (mesa) {
         Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la Mesa ${mesa}.`, timer: 4000, showConfirmButton: false });
     }
