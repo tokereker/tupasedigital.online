@@ -102,7 +102,3 @@ window.llamarMesero = async function(peticion) {
         }
     }
 };
-    if (mesa) {
-        Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la Mesa ${mesa}.`, timer: 4000, showConfirmButton: false });
-    }
-};
