@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Dashboard | Peticiones</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+
+    <!-- Header Estilo DJ -->
+    <header class="mb-8 border-b border-purple-900/50 pb-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
+                <i class="fa-solid fa-compact-disc text-purple-500 animate-spin" style="animation-duration: 4s;"></i> 
+                DJ Playlist Live
+            </h1>
+            <p class="text-purple-300/70 text-sm mt-1" id="dj-event-id">Cargando evento...</p>
+        </div>
+        <div class="text-right">
+            <span class="text-xs font-bold text-purple-400 bg-purple-950/80 border border-purple-800/50 px-3 py-1.5 rounded-full uppercase tracking-wider">
+                <i class="fa-solid fa-music mr-1"></i> Peticiones en Vivo
+            </span>
+        </div>
+    </header>
+
+    <!-- Lista de Canciones -->
+    <main class="max-w-4xl mx-auto">
+        <div id="canciones-container" class="space-y-3">
+            <div class="text-center text-slate-600 py-20">
+                <i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i>
+                <p>Conectando con la pista de baile...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaRKtx54HYM5jXB2DgtZeLciUNB7Inqjw",
+            authDomain: "wedding-crm-6853f.firebaseapp.com",
+            projectId: "wedding-crm-6853f",
+            storageBucket: "wedding-crm-6853f.firebasestorage.app",
+            messagingSenderId: "956437103756",
+            appId: "1:956437103756:web:b2d27aad4e6bfded7327a9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentEventId = urlParams.get('u');
+
+        if (!currentEventId) {
+            document.getElementById('canciones-container').innerHTML = '<div class="text-center text-red-400 py-20"><p>Falta el código del evento (?u=...)</p></div>';
+        } else {
+            document.getElementById('dj-event-id').innerText = `Evento: ${currentEventId.toUpperCase()}`;
+            iniciarDJPanel(currentEventId);
+        }
+
+        function iniciarDJPanel(eventId) {
+            const cancionesRef = collection(db, 'artifacts', 'weddingflow', 'users', eventId, 'canciones');
+            const q = query(cancionesRef, where("estado", "==", "pendiente"));
+
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('canciones-container');
+                container.innerHTML = '';
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="text-center text-slate-600 py-20 bg-slate-900/50 rounded-2xl border border-slate-800">
+                            <i class="fa-solid fa-headphones text-5xl mb-3 text-slate-700"></i>
+                            <p class="text-lg font-bold">Sin peticiones por ahora</p>
+                            <p class="text-xs text-slate-500">Las canciones que pidan los invitados aparecerán aquí automáticamente.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let canciones = [];
+                snapshot.forEach(docSnap => canciones.push({ id: docSnap.id, ...docSnap.data() }));
+                canciones.sort((a, b) => b.timestamp - a.timestamp); // Las más recientes arriba
+
+                canciones.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-900/90 border border-purple-900/30 hover:border-purple-500/50 p-4 rounded-xl flex justify-between items-center transition shadow-lg';
+                    
+                    card.innerHTML = `
+                        <div class="flex items-center gap-4 overflow-hidden">
+                            <div class="w-10 h-10 rounded-lg bg-purple-950 flex items-center justify-center shrink-0 border border-purple-800/40">
+                                <i class="fa-solid fa-music text-purple-400 text-sm"></i>
+                            </div>
+                            <div class="truncate">
+                                <h3 class="font-bold text-white text-base md:text-lg truncate">${c.cancion}</h3>
+                                <p class="text-xs text-purple-300/60 flex items-center gap-2">
+                                    <span><i class="fa-regular fa-clock"></i> ${c.hora}</span>
+                                    <span>•</span>
+                                    <span class="text-slate-400 font-medium">${c.mesa ? 'Mesa ' + c.mesa : 'Invitado'}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="window.marcarTocada('${c.id}')" class="bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 px-4 py-2 rounded-lg text-xs font-bold transition shrink-0 ml-2">
+                            <i class="fa-solid fa-check mr-1"></i> Tocar / Lista
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        window.marcarTocada = async function(cancionId) {
+            try {
+                const docRef = doc(db, 'artifacts', 'weddingflow', 'users', currentEventId, 'canciones', cancionId);
+                await updateDoc(docRef, { estado: 'tocada' });
+            } catch (error) {
+                console.error("Error al marcar canción:", error);
+            }
+        };
+    </script>
+</body>
+</html>
