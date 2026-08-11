@@ -1,7 +1,5 @@
-// src/guest.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, doc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
 
 const firebaseConfig = {
     apiKey: "AIzaSyCaRKtx54HYM5jXB2DgtZeLciUNB7Inqjw",
@@ -12,13 +10,14 @@ const firebaseConfig = {
     appId: "1:956437103756:web:b2d27aad4e6bfded7327a9"
 };
 
-// 2. Conexión directa
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let eventDataConfig = null;
 let currentEventId = null;
 let currentGuestId = null;
+// NUEVA VARIABLE: Aquí guardaremos las mesas de tu CRM
+let mesasDelEvento = []; 
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,6 +40,9 @@ function iniciarEscuchaInvitado(eventId) {
         if (docSnap.exists()) {
             const data = docSnap.data();
             eventDataConfig = data.config || {};
+            
+            // Atrapamos las mesas dinámicas de tu CRM
+            mesasDelEvento = data.mesas || [];
             
             const eventType = data.eventType || "Evento";
             let nombresFormateados = currentEventId.toUpperCase().replace('Y', ' y ');
@@ -75,35 +77,48 @@ window.abrirLinkDJ = function() {
 
 window.llamarMesero = async function(peticion) {
     if (!currentEventId) return;
-    const { value: mesa } = await Swal.fire({
+
+    // Construimos la lista de opciones para SweetAlert
+    // Primero, agregamos la "Mesa Principal" por defecto
+    let opcionesMesas = {
+        "Mesa Principal": "Mesa Principal"
+    };
+
+    // Luego, inyectamos las mesas de tu CRM
+    mesasDelEvento.forEach(mesa => {
+        // Usa el nombre de tu CRM (Ej. "Mesa 1", "Mesa Amigos")
+        opcionesMesas[mesa.nombre] = mesa.nombre; 
+    });
+
+    const { value: mesaElegida } = await Swal.fire({
         title: 'Servicio a Mesa',
         text: `Se enviará una notificación al staff para: ${peticion}. ¿En qué mesa estás sentado?`,
-        input: 'text', // Cambiamos de 'number' a 'text' para permitir palabras
-        inputPlaceholder: 'Ej. 5 o Principal', // Actualizamos la sugerencia
+        input: 'select',
+        inputOptions: opcionesMesas,
+        inputPlaceholder: 'Selecciona tu mesa...',
         showCancelButton: true, 
         confirmButtonText: 'Enviar Notificación', 
         cancelButtonText: 'Cancelar',
         confirmButtonColor: eventDataConfig?.themeColor || '#10b981',
         inputValidator: (value) => {
             if (!value) {
-                return 'Por favor escribe tu mesa (Ej. 5 o Principal)';
+                return 'Por favor selecciona una mesa de la lista';
             }
         }
     });
 
-    if (mesa) {
+    if (mesaElegida) {
         try {
-            // Guardamos la alerta en Firebase
             const alertasRef = collection(db, 'artifacts', 'weddingflow', 'users', currentEventId, 'alertas');
             await addDoc(alertasRef, {
-                mesa: mesa.toUpperCase(), // Convertimos a mayúsculas para que el staff lo lea mejor
+                mesa: mesaElegida.toUpperCase(),
                 peticion: peticion,
                 hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                 timestamp: Date.now(),
                 estado: 'pendiente'
             });
             
-            Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la Mesa ${mesa.toUpperCase()}.`, timer: 4000, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la ${mesaElegida}.`, timer: 4000, showConfirmButton: false });
         } catch (error) {
             console.error("Error al enviar notificación:", error);
             Swal.fire({ icon: 'error', title: 'Ups...', text: 'No pudimos enviar el aviso por problemas de conexión. Por favor llama al mesero directamente.' });
