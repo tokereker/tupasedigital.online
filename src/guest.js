@@ -78,24 +78,32 @@ window.llamarMesero = async function(peticion) {
     const { value: mesa } = await Swal.fire({
         title: 'Servicio a Mesa',
         text: `Se enviará una notificación al staff para: ${peticion}. ¿En qué mesa estás sentado?`,
-        input: 'number', inputAttributes: { min: 1, step: 1 }, inputPlaceholder: 'Ej. 5',
-        showCancelButton: true, confirmButtonText: 'Enviar Notificación', cancelButtonText: 'Cancelar',
-        confirmButtonColor: eventDataConfig?.themeColor || '#10b981'
+        input: 'text', // Cambiamos de 'number' a 'text' para permitir palabras
+        inputPlaceholder: 'Ej. 5 o Principal', // Actualizamos la sugerencia
+        showCancelButton: true, 
+        confirmButtonText: 'Enviar Notificación', 
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: eventDataConfig?.themeColor || '#10b981',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Por favor escribe tu mesa (Ej. 5 o Principal)';
+            }
+        }
     });
 
     if (mesa) {
         try {
-            // Guardamos la alerta en la subcolección de Firebase
+            // Guardamos la alerta en Firebase
             const alertasRef = collection(db, 'artifacts', 'weddingflow', 'users', currentEventId, 'alertas');
             await addDoc(alertasRef, {
-                mesa: mesa,
+                mesa: mesa.toUpperCase(), // Convertimos a mayúsculas para que el staff lo lea mejor
                 peticion: peticion,
                 hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                 timestamp: Date.now(),
-                estado: 'pendiente' // Para que luego tu staff la pueda marcar como atendida
+                estado: 'pendiente'
             });
             
-            Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la Mesa ${mesa}.`, timer: 4000, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: '¡Aviso Enviado!', text: `El staff ha sido notificado y se dirige a la Mesa ${mesa.toUpperCase()}.`, timer: 4000, showConfirmButton: false });
         } catch (error) {
             console.error("Error al enviar notificación:", error);
             Swal.fire({ icon: 'error', title: 'Ups...', text: 'No pudimos enviar el aviso por problemas de conexión. Por favor llama al mesero directamente.' });
