@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Staff | Servicio a Mesa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+
+    <!-- Encabezado -->
+    <header class="mb-8 border-b border-slate-700 pb-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-white"><i class="fa-solid fa-bell-concierge text-emerald-500 mr-2"></i> Panel de Staff</h1>
+            <p class="text-slate-400 text-sm mt-1" id="staff-event-id">Cargando evento...</p>
+        </div>
+        <div class="text-right">
+            <span class="relative flex h-3 w-3 inline-block mr-1">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span class="text-xs font-bold text-emerald-500 uppercase tracking-widest">En Línea</span>
+        </div>
+    </header>
+
+    <!-- Contenedor de Alertas (Grid) -->
+    <div id="alertas-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Las alertas se inyectarán aquí -->
+        <div class="col-span-full text-center text-slate-500 mt-20">
+            <i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i>
+            <p>Conectando con las mesas...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaRKtx54HYM5jXB2DgtZeLciUNB7Inqjw",
+            authDomain: "wedding-crm-6853f.firebaseapp.com",
+            projectId: "wedding-crm-6853f",
+            storageBucket: "wedding-crm-6853f.firebasestorage.app",
+            messagingSenderId: "956437103756",
+            appId: "1:956437103756:web:b2d27aad4e6bfded7327a9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Sacar el ID del evento de la URL (Ej: ?u=pacoypati)
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentEventId = urlParams.get('u');
+
+        if (!currentEventId) {
+            document.getElementById('alertas-grid').innerHTML = '<div class="col-span-full text-center text-red-400 mt-20"><i class="fa-solid fa-triangle-exclamation text-4xl mb-4"></i><p>Falta el código del evento en el enlace.</p></div>';
+        } else {
+            document.getElementById('staff-event-id').innerText = `Evento ID: ${currentEventId.toUpperCase()}`;
+            iniciarPanel(currentEventId);
+        }
+
+        function iniciarPanel(eventId) {
+            const alertasRef = collection(db, 'artifacts', 'weddingflow', 'users', eventId, 'alertas');
+            // Buscamos solo las alertas que están pendientes
+            const q = query(alertasRef, where("estado", "==", "pendiente"));
+
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('alertas-grid');
+                container.innerHTML = ''; 
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="col-span-full text-center text-slate-600 mt-20"><i class="fa-solid fa-check-circle text-6xl mb-4 text-slate-700"></i><p class="text-xl font-bold">Todo tranquilo</p><p class="text-sm">No hay mesas esperando servicio.</p></div>';
+                    return;
+                }
+
+                // Ordenamos las alertas en memoria (las más viejas primero)
+                let alertasArr = [];
+                snapshot.forEach(docSnap => alertasArr.push({ id: docSnap.id, ...docSnap.data() }));
+                alertasArr.sort((a, b) => a.timestamp - b.timestamp);
+
+                // Dibujamos las tarjetas
+                alertasArr.forEach(alerta => {
+                    const div = document.createElement('div');
+                    // Tarjeta destacada con borde amarillo
+                    div.className = 'bg-slate-800 rounded-2xl shadow-xl p-5 border-l-8 border-amber-400 flex flex-col justify-between transition-all transform hover:-translate-y-1';
+                    
+                    div.innerHTML = `
+                        <div class="mb-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-3xl font-black text-white">Mesa ${alerta.mesa}</h3>
+                                <span class="text-xs font-bold bg-slate-700 text-slate-300 px-3 py-1 rounded-full"><i class="fa-regular fa-clock mr-1"></i> ${alerta.hora}</span>
+                            </div>
+                            <p class="text-xl font-bold text-amber-400 uppercase tracking-wide"><i class="fa-solid fa-bell mr-2"></i> ${alerta.peticion}</p>
+                        </div>
+                        <button onclick="window.marcarAtendido('${alerta.id}')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-black text-lg py-4 rounded-xl transition shadow-lg active:scale-95">
+                            <i class="fa-solid fa-check-double mr-2"></i> LISTO
+                        </button>
+                    `;
+                    container.appendChild(div);
+                });
+            }, (error) => {
+                console.error("Error al escuchar alertas:", error);
+            });
+        }
+
+        // Función para marcar como completado
+        window.marcarAtendido = async function(alertaId) {
+            try {
+                const alertaRef = doc(db, 'artifacts', 'weddingflow', 'users', currentEventId, 'alertas', alertaId);
+                // Al cambiar a completado, desaparece automáticamente de la pantalla
+                await updateDoc(alertaRef, { estado: 'completado' });
+            } catch(error) {
+                console.error("Error al actualizar:", error);
+                alert("Hubo un error de conexión al marcar como atendido.");
+            }
+        };
+    </script>
+</body>
+</html>
