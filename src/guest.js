@@ -63,15 +63,46 @@ function iniciarEscuchaInvitado(eventId) {
     });
 }
 
-window.abrirLinkDJ = function() {
-    if (eventDataConfig && eventDataConfig.djLink && eventDataConfig.djLink.trim() !== '') {
-        window.open(eventDataConfig.djLink, '_blank');
-    } else {
-        Swal.fire({
-            icon: 'info', title: 'Playlist Sorpresa',
-            text: 'El organizador no ha habilitado peticiones de canciones, ¡prepárate para la sorpresa del DJ!',
-            confirmButtonColor: eventDataConfig?.themeColor || '#3b82f6', confirmButtonText: 'Entendido'
-        });
+window.abrirLinkDJ = async function() {
+    if (!currentEventId) return;
+
+    const { value: cancion } = await Swal.fire({
+        title: '🎵 Pide tu canción',
+        text: '¿Qué canción quieres escuchar en la pista?',
+        input: 'text',
+        inputPlaceholder: 'Ej. La Chona - Los Tucanes de Tijuana',
+        showCancelButton: true,
+        confirmButtonText: 'Enviar al DJ',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#8b5cf6', // Color morado DJ
+        inputValidator: (value) => {
+            if (!value || value.trim() === '') {
+                return 'Escribe el nombre de la canción o artista';
+            }
+        }
+    });
+
+    if (cancion) {
+        try {
+            const cancionesRef = collection(db, 'artifacts', 'weddingflow', 'users', currentEventId, 'canciones');
+            await addDoc(cancionesRef, {
+                cancion: cancion.trim(),
+                hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                timestamp: Date.now(),
+                estado: 'pendiente'
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Petición Enviada!',
+                text: 'La canción ha sido enviada a la cabina del DJ. ¡Atento a la pista!',
+                timer: 3000,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            console.error("Error al enviar petición al DJ:", error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo enviar tu petición.' });
+        }
     }
 };
 
