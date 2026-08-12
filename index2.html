@@ -286,6 +286,21 @@
                 Swal.fire('Error', 'Hubo un problema al guardar tu respuesta. Verifica tu conexión.', 'error');
             }
         };
+// Obtener la fecha actual
+const hoy = new Date();
+
+// Convertir la fecha límite guardada en tu BD a objeto Date
+// Asegúrate de traer 'fechaLimiteBD' de tus configuraciones guardadas
+const fechaLimite = new Date(fechaLimiteBD); 
+
+// Validar
+if (hoy > fechaLimite) {
+    // Ocultar botones de confirmación
+    document.getElementById('botones-rsvp').style.display = 'none';
+    // Mostrar un mensaje
+    document.getElementById('mensaje-cierre').innerText = 'El periodo de confirmación ha finalizado.';
+}
+        
     </script>
 </body>
 </html>
