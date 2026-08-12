@@ -122,8 +122,7 @@
             <p class="text-[10px] text-slate-400 mt-8 pt-4 border-t border-slate-200/50 font-medium">Desarrollado por TPD Enterprise ©</p>
         </div>
     </div>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -231,11 +230,10 @@
                     textoEstado.className = "text-xl fuente-elegante font-bold text-red-500 mb-3";
                 }
             } 
-            // 2. LÓGICA FECHA LÍMITE (Si no ha respondido)
-            else if (baseDeDatosCompleta.config && baseDeDatosCompleta.config.fechaLimite) {
+            // 2. LÓGICA FECHA LÍMITE (¡CORREGIDA!)
+            else if (baseDeDatosCompleta.config && baseDeDatosCompleta.config.rsvpDeadline) { // <- Nombre correcto
                 const hoy = new Date();
-                // Al ser datetime-local, la fecha ya incluye la hora exacta
-                const limite = new Date(baseDeDatosCompleta.config.fechaLimite);
+                const limite = new Date(baseDeDatosCompleta.config.rsvpDeadline); // <- Nombre correcto
 
                 if (hoy > limite) {
                     // Tiempo Expirado
@@ -286,21 +284,7 @@
                 Swal.fire('Error', 'Hubo un problema al guardar tu respuesta. Verifica tu conexión.', 'error');
             }
         };
-// Obtener la fecha actual
-const hoy = new Date();
-
-// Convertir la fecha límite guardada en tu BD a objeto Date
-// Asegúrate de traer 'fechaLimiteBD' de tus configuraciones guardadas
-const fechaLimite = new Date(fechaLimiteBD); 
-
-// Validar
-if (hoy > fechaLimite) {
-    // Ocultar botones de confirmación
-    document.getElementById('botones-rsvp').style.display = 'none';
-    // Mostrar un mensaje
-    document.getElementById('mensaje-cierre').innerText = 'El periodo de confirmación ha finalizado.';
-}
-        
     </script>
+   
 </body>
 </html>
